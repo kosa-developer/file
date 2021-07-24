@@ -1,0 +1,40 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui">
+
+    <div class="layout-topbar">
+        <a class="menu-button" tabindex="0">
+            <i class="pi pi-bars"></i>
+        </a>
+        <h:link styleClass="logo" outcome="/dashboard.xhtml">
+            <h:graphicImage name="showcase/images/healtsolution.PNG" alt="Health solution" styleClass="layouts-news-mockup-image" />
+
+        </h:link>
+        <p:outputPanel id="app-theme-logo" class="app-theme">
+            <p:graphicImage id="app-theme-image" name="showcase/images/global_big.png" alt="Health solution" />
+            <p:tooltip for="app-theme-logo" value="#{app.theme}" position="bottom" showDelay="0" />
+        </p:outputPanel>
+
+        <h:form styleClass="topbar-form">
+            <ul class="topbar-menu">
+
+                <li class="topbar-submenu">
+
+                    <a >    
+                        #{user.fullName}
+                    </a>
+                    <ul class="connected-overlay-in ">
+                        <li class="topbar-submenu-header">User Profile</li>
+                        <li><p:commandLink  ><h:graphicImage name="showcase/images/physician-computer-icons.jpg" alt="#{usersBean.fullName}"/><span>#{usersBean.fullName}</span></p:commandLink></li>
+
+                    </ul>
+                </li>
+                <li class="topbar-submenu">
+                  
+                        <h:commandLink  styleClass="ui-button-info" action="#{user.logout()}" value="Logout"> <i class="pi pi-fw pi-sign-out"></i></h:commandLink>
+                  
+                </li>
+
+            </ul>
+        </h:form>
+    </div>
+</ui:composition>

@@ -1,0 +1,118 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:h="http://java.sun.com/jsf/html" 
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui" 
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="head">
+<style type="text/css">
+    button.ui-button {
+        margin-right: .5rem;
+    }
+</style>
+    </ui:define>
+    <ui:define name="content">
+        <div class="card">
+            <h5>New User</h5>
+            <h:form id="form" class="card  p-col-12 p-md-7">
+
+                <div class="ui-fluid p-formgrid p-grid">
+                    <div class="p-field p-col-12 p-md-6">
+                        <p:outputLabel for="firstname" value="Name:"/>
+
+                        <p:inputText id="firstname" value="#{adminBean.fullName}" required="true" label="Firstname">
+                            <f:validateLength minimum="3"/>
+                            <p:clientValidator/>
+                            <p:ajax update="mssfirstnamet" event="keyup"/>
+                        </p:inputText>
+                        <p:message for="firstname" id="mssfirstnamet"  display="icon"/> 
+                    </div>
+                    <div class="p-field p-col-12 p-md-6">
+                        <p:outputLabel for="gender" value="Sex"/>
+                        <p:selectOneMenu id="gender" value="#{adminBean.sex}" required="true" validatorMessage="gender is required">
+                            <f:selectItem itemLabel="Select Sex" itemValue=""/>
+                            <f:selectItem itemLabel="Male" itemValue="M"/>
+                            <f:selectItem itemLabel="Female" itemValue="F"/>
+                            <f:validateRequired/>
+                            <p:clientValidator/>
+                            <p:ajax update="gendrmssg" event="change"/>
+                        </p:selectOneMenu> 
+                        <p:message for="gender" id="gendrmssg"  display="icon"/>
+                    </div>
+                    <div class="p-field p-col-12 p-md-6">
+                        <p:outputLabel for="department" value="Department"/>
+                        <p:selectOneMenu filter="true" filterMatchMode="contains" id="department" value="#{adminBean.did}"  required="true" validatorMessage="Department is required">
+                            <f:selectItem itemLabel="Select Department" itemValue=""/>
+                            <f:selectItems value="#{adminBean.alldepartments()}" var="dep" itemLabel="#{dep.departmentName}" itemValue="#{dep.did}"/>
+                            <f:validateRequired/>
+                            <p:clientValidator/>
+                            <p:ajax update="departmentmsg" event="change"/>
+                        </p:selectOneMenu> 
+                        <p:message for="department" id="departmentmsg"  display="icon"/>
+                    </div>
+                    <div class="p-field p-col-12 p-md-6">
+                        <h:outputLabel for="role" value="Role" />
+                        <p:selectOneMenu filter="true" filterMatchMode="contains" id="role" value="#{adminBean.rid}"  required="true">
+                            <f:selectItem itemLabel="Select Role" itemValue=""/>
+                            <f:selectItems value="#{dynamicFunctionsBean.dropDowns('roles', 'RID', 'Name')}" var="role" itemLabel="#{role.dropdownValue}" itemValue="#{role.dropdownId}"/>
+
+                            <p:clientValidator/>
+                            <p:ajax update="rolemsg" event="change"/>
+                        </p:selectOneMenu>
+                        <p:message for="role" id="rolemsg"  display="icon"/>
+
+                    </div>
+
+                    <div class="p-field p-col-12 p-md-6">
+                        <h:outputLabel for="level" value="Level:" />
+                        <p:selectOneMenu filter="true" filterMatchMode="contains" id="level" value="#{adminBean.level}"  required="true">
+                            <f:selectItem itemLabel="Select Role" itemValue=""/>
+                            <f:selectItem itemLabel="LOCAL USER" itemValue="LOCAL USER" />  
+                            <f:selectItem itemLabel="SUPERVISOR" itemValue="SUPERVISOR" />  
+                            <p:clientValidator/>
+                            <p:ajax update="levelmsg" event="change"/>
+                        </p:selectOneMenu>
+                        <p:message for="level" id="levelmsg"  display="icon"/>
+
+                    </div>
+                    <div class="p-field p-col-12 p-md-6">
+                        <h:outputLabel value="Username:" for="username" />
+                        <p:inputText  id="username" value="#{adminBean.userName}" required="true" label="username">
+                            <f:validateLength minimum="3"/>
+                            <p:clientValidator/>
+                            <p:ajax update="mssusername" event="keyup"/>
+                        </p:inputText>
+                        <p:message for="username" id="mssusername"  display="icon"/> 
+                    </div>
+                    <div class="p-field p-col-12 p-md-6">
+                        <h:outputLabel  for="pass" value="Password:" />
+                        <p:password  id="pass" value="#{adminBean.password}" required="true">
+                            <f:validateLength minimum="6"/>
+                            <p:clientValidator/>
+                            <p:ajax update="msspass" event="keyup"/>
+                        </p:password>
+                        <p:message for="pass" id="msspass" /> 
+                    </div>
+                    <div class="p-field p-col-12 p-md-6">
+                        <h:outputLabel for="repass" value="Re enter Password:" />
+
+                        <p:password id="repass" value="#{adminBean.repassword}" required="true" >
+                            <f:validateLength minimum="6"/>
+                            <p:clientValidator/>
+                            <p:ajax update="mssrepass" event="keyup"/>
+                        </p:password>
+                        <p:message for="repass" id="mssrepass" /> 
+                    </div>
+
+                </div>
+                    <p:commandButton  action="#{adminBean.registeruser()}" value="Save"  update="form" styleClass="ui-button-info"  icon="pi pi-check"/>
+                    <p:commandButton  action="#{adminBean.cleardata()}" value="Clear"  update="form" styleClass="ui-button-warning" icon="pi pi-times"/>
+            <p:messages/>
+            </h:form>
+        </div>
+
+
+
+    </ui:define>
+</ui:composition>

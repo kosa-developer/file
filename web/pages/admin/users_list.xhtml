@@ -1,0 +1,44 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
+
+    <ui:define name="content">
+
+        <div class="card p-col-12  p-md-12 p-sm-12">
+           
+            <h:form>
+                <p:dataTable var="user" value="#{adminBean.admin_get_all_users()}" widgetVar="usersTable"
+                             emptyMessage="No user found with given criteria"
+                             selectionMode="single" selection="#{adminBean.selectedUser}"  rowKey="#{user.uid}" >
+
+                    <f:facet name="header">
+                        <div class="p-d-flex p-ai-center p-jc-between">
+                             <h5>Registered users</h5>
+                            <p:inputText id="globalFilter" onkeyup="PF('usersTable').filter()"  style="width:10rem" placeholder="Enter keyword" />
+                        </div>
+                    </f:facet>
+
+
+                    <p:column headerText="Staff Name" sortBy="#{user.fullName}" filterBy="#{user.fullName}"  styleClass="tblcol8">  
+                        #{user.fullName} 
+                    </p:column> 
+
+                    <p:column headerText="Username" styleClass="tblcol2">  
+                        #{user.userName} 
+                    </p:column>
+
+                    <p:column headerText="Department" styleClass="tblcol3">  
+                        #{user.department_name} 
+                    </p:column>
+
+                    <p:column headerText="Status" styleClass="tblcol2">  
+                        #{user.status} 
+                    </p:column>
+
+
+                </p:dataTable>
+            </h:form>
+        </div>
+
+
+    </ui:define>
+</ui:composition>

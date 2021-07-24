@@ -1,0 +1,63 @@
+<ui:composition template="/WEB-INF/templates/login.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:o="http://omnifaces.org/ui"                 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core">
+    <ui:define name="head">
+
+    </ui:define>
+
+    <ui:define name="title">Health solution</ui:define>
+
+    <ui:define name="content">
+        <div class="login-image"></div>
+        <div class="card login-panel ui-fluid">
+            <div class="login-panel-content">
+                <h:form >
+
+                    <div class="p-grid">
+                        <div class="p-col-2" style="text-align:left;font-size: xx-large; font-weight: bolder; color: #004085">
+                            <h:graphicImage name="showcase/images/login.PNG" alt="health solution" styleClass="layouts-news-mockup-image" />
+
+                        </div>
+                        <div class="p-col-10" style="text-align:left;">
+                            <h2 class="welcome-text">Welcome Our Guest</h2>
+                            <span class="guest-sign-in">To health solution. putting data at the center of decision making is our pride. enjoy the services</span>
+                        </div>
+
+                        <div class="p-col-12" style="text-align:left;">
+                            <label class="login-label">Username</label>
+                            <div class="login-input">
+                                <p:inputText  value="#{user.userName}" class="ui-inputfield ui-inputtext ui-widget ui-state-default ui-corner-all" required="true" requiredMessage="enter username" />
+                            </div>
+                        </div>
+                        <div class="p-col-12" style="text-align:left;">
+                            <label class="login-label">Password</label>
+                            <div class="login-input">
+                                <p:password class="ui-password ui-inputfield ui-widget ui-state-default ui-corner-all" value="#{user.password}" required="true" requiredMessage="enter password" />
+
+                            </div>
+                        </div>
+                        <div class="p-col-12 p-md-6 button-pane">
+                            <p:commandButton  class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" update="message" action="#{user.login()}" value="Sign in" />
+
+                        </div>
+
+                        <div class="p-col-12 p-md-6 p-d-flex p-ai-center p-jc-center">
+                            <a href="admin.xhtml" class="ui-link ui-widget forget-password">Forget Password?</a>
+                        </div>
+                        <div class="p-col-9" style="text-align:left;">
+                             <p:messages id="message"/>
+                          
+                        </div>
+                       
+                    </div>
+                   
+                </h:form>
+            </div>
+        </div>
+    </ui:define>
+
+</ui:composition>

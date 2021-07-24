@@ -1,0 +1,39 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:h="http://java.sun.com/jsf/html" 
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui" 
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="content">
+
+        <h:form>  
+
+            <p:panel id="pnldepartments" style="margin-bottom:5px;color: #40356E;background-color: #f7f7f7; margin-right: 5px">
+                <p:dataTable id="departmentTable" value="#{adminBean.view_department()}"  
+                             paginator="true" rows="15" paginatorPosition="bottom" var="department" style="width: 100%;margin: 0 auto;">
+
+                    <p:column headerText="Index" styleClass="tblcol2">  
+                        #{department.did}
+                    </p:column> 
+
+                    <p:column headerText="Department Name"  styleClass="tblcol8">  
+                        #{department.departmentName} 
+                    </p:column>
+
+                    <p:column headerText="Description" styleClass="tblcol10">  
+                        #{department.description} 
+                    </p:column>
+
+                </p:dataTable>
+            </p:panel>
+            
+            <p:panel id="pnlaction" style="margin-bottom:5px;">
+                <p:commandButton value="Add New Department" action="#{adminBean.admin_go_to('addnew')}" style="font-size: 12px; padding-right: 15px;" />
+            </p:panel>
+
+        </h:form>
+
+    </ui:define>
+
+</ui:composition>

@@ -1,0 +1,46 @@
+<!DOCTYPE html [
+    <!ENTITY nbsp "&#160;">
+    <!ENTITY bull "&#8226;">
+    <!ENTITY copy "&#169;"> ]>
+    <html xmlns="http://www.w3.org/1999/xhtml"
+          xmlns:h="http://java.sun.com/jsf/html"
+          xmlns:f="http://java.sun.com/jsf/core"
+          xmlns:ui="http://java.sun.com/jsf/facelets">
+
+        <h:head >
+            <f:facet name="first">
+                <meta http-equiv="X-UA-Compatible" content="HEALTH SYSTEM Uganda" />
+                <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+                <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+                <meta name="apple-mobile-web-app-capable" content="yes" />
+                <link href="#{resource['showcase/images/global_big.png']}" rel="icon" type="image/png" sizes="32x32"/>
+                <link href="#{resource['showcase/images/global_small.png']}" rel="icon" type="image/png" sizes="16x16"/>
+
+            </f:facet>
+            <title><ui:insert name="title"/></title>
+            <link type="text/css" rel="stylesheet" href="#{request.contextPath}/javax.faces.resource/theme.cssed69.css?ln=primefaces-avalon-blue&amp;v=10.0.0" />
+            <link type="text/css" rel="stylesheet" href="#{request.contextPath}/javax.faces.resource/primeicons/primeicons.cssced1.css?ln=primefaces&amp;v=10.0.0" />
+            <link type="text/css" rel="stylesheet" href="#{request.contextPath}/javax.faces.resource/components.cssced1.css?ln=primefaces&amp;v=10.0.0" />
+            <script type="text/javascript" src="#{request.contextPath}/javax.faces.resource/jquery/jquery.jsced1.xhtml?ln=primefaces&amp;v=10.0.0"></script>
+            <script type="text/javascript" src="#{request.contextPath}/javax.faces.resource/core.jsced1.xhtml?ln=primefaces&amp;v=10.0.0"></script>
+            <script type="text/javascript" src="#{request.contextPath}/javax.faces.resource/components.jsced1.xhtml?ln=primefaces&amp;v=10.0.0"></script>
+            <script type="text/javascript" src="#{request.contextPath}/javax.faces.resource/jquery/jquery-plugins.jsced1.xhtml?ln=primefaces&amp;v=10.0.0"></script>
+            <link type="text/css" rel="stylesheet" href="#{request.contextPath}/javax.faces.resource/css/primeflex.min.cssf4ac.css?ln=avalon-layout" />
+            <link type="text/css" rel="stylesheet" href="#{request.contextPath}/javax.faces.resource/css/layout-blue.cssf4ac.css?ln=avalon-layout" />
+            <script type="text/javascript">
+                if (window.PrimeFaces) {
+                    PrimeFaces.settings.locale = 'en_US';
+                    PrimeFaces.settings.viewId = '/login.xhtml';
+                    PrimeFaces.settings.contextPath = '/avalon';
+                    PrimeFaces.settings.cookiesSecure = false;
+                }</script>
+            <ui:insert name="head" />
+        </h:head>
+
+        <h:body class="login-body">
+
+            <ui:insert name="content"></ui:insert>
+
+        </h:body>
+
+    </html>
