@@ -1,42 +1,140 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
 
+    <ui:define name="head">
+        <style type="text/css">
+            button.ui-button {
+                margin-right: .5rem;
+            }
+        </style>
+    </ui:define>
     <ui:define name="content">
 
-        <div class="card p-col-12  p-md-12 p-sm-12">
-           
-            <h:form>
-                <p:dataTable var="user" value="#{adminBean.admin_get_all_users()}" widgetVar="usersTable"
-                             emptyMessage="No user found with given criteria"
-                             selectionMode="single" selection="#{adminBean.selectedUser}"  rowKey="#{user.uid}" >
+        <div class="p-col-12 p-md-12 p-sm-12 p-grid">
 
+            <h:form class="card p-col-12 p-md-8 p-sm-12" id="userlist">
+
+                <p:dataTable rows="5" id="userslist"
+                             paginator="true" scrollable="true"
+                             paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                             currentPageReportTemplate="{startRecord}-{endRecord} of {totalRecords} records"
+                             rowsPerPageTemplate="5,10,100,200,500,1000,{ShowAll|'All'}"
+                             showGridlines="true" var="user" value="#{adminBean.admin_get_all_users()}" widgetVar="usersTable"
+                             emptyMessage="No user found with given criteria"
+                             selectionMode="single" selection="#{adminBean.selectedUser}"  rowKey="#{user.uid}" size="small">
+                    <p:ajax event="rowSelect" process="@this" update="edituser" />
                     <f:facet name="header">
                         <div class="p-d-flex p-ai-center p-jc-between">
-                             <h5>Registered users</h5>
+                            <h5>Registered users</h5>
                             <p:inputText id="globalFilter" onkeyup="PF('usersTable').filter()"  style="width:10rem" placeholder="Enter keyword" />
                         </div>
                     </f:facet>
 
 
-                    <p:column headerText="Staff Name" sortBy="#{user.fullName}" filterBy="#{user.fullName}"  styleClass="tblcol8">  
+                    <p:column headerText="Staff Name" footerText="Staff Name"  sortBy="#{user.fullName}" filterBy="#{user.fullName}" >  
                         #{user.fullName} 
                     </p:column> 
 
-                    <p:column headerText="Username" styleClass="tblcol2">  
+                    <p:column headerText="Username" footerText="Username" >  
                         #{user.userName} 
                     </p:column>
 
-                    <p:column headerText="Department" styleClass="tblcol3">  
+                    <p:column headerText="Department" footerText="Department" >  
                         #{user.department_name} 
                     </p:column>
 
-                    <p:column headerText="Status" styleClass="tblcol2">  
+                    <p:column headerText="Status" footerText="Status" >  
                         #{user.status} 
                     </p:column>
-
+                    <p:column headerText="privillages" footerText="rights">  
+                        <p:commandButton  id="right" action="#{adminBean.viewprivillages(user.uid)}"  update=":privform:privillagelist" styleClass="rounded-button ui-button-success ui-button-outlined"
+                                          onclick="PF('productOP').show('#{component.clientId}')"
+                                          icon="pi pi-user-edit"  >
+                        </p:commandButton>
+                        <p:tooltip for="right" value="View Privillages" position="right"/>
+                    </p:column>
 
                 </p:dataTable>
+
+
             </h:form>
+
+
+            <h:form id="edituser"  class="card p-col-12 p-md-4 p-sm-12"> 
+                <div class="ui-fluid p-formgrid p-grid p-col-12 p-md-12" >
+                    <div class="p-field ">
+                        <h:outputLabel value="Staff ID:" for="staffid"/>
+                        <p:inputText id="staffid" value="#{adminBean.selectedUser.uid}" disabled="true"/>
+                    </div>
+                    <div class="p-field">
+                        <h:outputLabel value="Staff Name:" />
+                        <p:inputText value="#{adminBean.selectedUser.fullName}" required="true" />
+                    </div>
+                    <div class="p-field ">
+                        <p:outputLabel  value="Department"/>
+                        <p:selectOneMenu id="department" filter="true" filterMatchMode="contains" value="#{adminBean.selectedUser.did}"   required="true" >
+                            <f:selectItem itemLabel="Select Department" itemValue=""/>
+                            <f:selectItems value="#{dynamicFunctionsBean.dropDowns('department', 'DID', 'DepartmentName')}" var="role" itemLabel="#{role.dropdownValue}" itemValue="#{role.dropdownId}"/>
+
+                        </p:selectOneMenu> 
+                    </div>
+                    <div class="p-field ">
+                        <h:outputLabel value="Username:" />
+                        <p:inputText value="#{adminBean.selectedUser.userName}"  disabled="true"/>
+                    </div>
+
+                    <div class="p-field">
+                        <h:outputLabel value="New Password:" />
+                        <p:password value="#{adminBean.new_password}"/> 
+                    </div>
+                </div>
+                <p:commandButton  icon="pi pi-check" iconPos="right" value="Edit" update="userlist,notification" action="#{adminBean.edituser()}" styleClass="ui-button-raised ui-button-success ui-button-flat" />
+                <p:commandButton  icon="pi pi-power-off" iconPos="right" value="Deactivate" update="userlist,notification" action="#{adminBean.admin_deactivate_user()}" styleClass="ui-button-raised ui-button-warning ui-button-flat" />
+                <p:commandButton  icon="pi pi-times-circle" iconPos="right" value="Delete" update="userlist,notification" action="#{adminBean.admin_delete_user()}" styleClass="ui-button-raised ui-button-danger ui-button-flat" />
+
+                <p:commandButton  icon="pi pi-user-edit"  iconPos="right" value="Change Password" update="userlist,notification" action="#{adminBean.admin_change_user_pwd()}" styleClass="ui-button-raised ui-button-info ui-button-flat" />
+
+                <p:messages id="notification"/>
+            </h:form>
+
+            <h:form id="privform">
+                <p:overlayPanel class="p-col-12  p-md-3 p-sm-12" widgetVar="productOP" dismissable="false" showCloseIcon="true" dynamic="true">
+                    <p:panel  id="privillagelist">
+                        <div class="product">
+                            <p:selectOneMenu binding="#{privg}" class="p-col-12  p-md-6 p-sm-12"   filter="true" filterMatchMode="contains"  >
+                                <f:selectItem itemLabel="Select privillage" itemValue=""/>
+                                <f:selectItem itemLabel="Administration" itemValue="Administration"/>
+                                <f:selectItem itemLabel="Triage/Reception" itemValue="Triage"/>
+                                <f:selectItem itemLabel="Clinician/Medical Officer" itemValue="Clinician"/>
+                                <f:selectItem itemLabel="Account" itemValue="Account"/>
+                                <f:selectItem itemLabel="Laboratory and Diagnostics" itemValue="Laboratory"/>
+                                <f:selectItem itemLabel="Dispensary" itemValue="Dispensary"/>
+                                <f:selectItem itemLabel="Pharmacy" itemValue="Pharmacy"/>
+                                <f:selectItem itemLabel="Ward" itemValue="Ward"/>
+                                <f:selectItem itemLabel="Xray" itemValue="Xray"/>
+                                <f:selectItem itemLabel="Surgery" itemValue="Surgery"/>
+                            </p:selectOneMenu>
+                            <p:commandButton action="#{adminBean.saveprivillage(privg.value)}"   icon="pi pi-save" value="save" styleClass="ui-button-danger ui-button-outlined" update="prvmss,privillageData" />
+                            <p:messages id="prvmss"/>
+                            <p:dataTable id="privillageData" scrollHeight="200" scrollable="true" var="priv" value="#{adminBean.privillage_list}" >
+
+                                <p:column >
+                                    <h:outputText value="#{priv.dropdownValue}"/>
+                                </p:column>
+
+                                <p:column >
+                                    <p:commandButton id="deleteprivillage" action="#{adminBean.deletprivillage(priv.dropdownId)}" icon="pi pi-times" update=":privform:prvmss,privillageData" styleClass="rounded-button ui-button-danger ui-button-outlined" />
+                                    <p:tooltip for="deleteprivillage" value="Delete Privillages" position="right"/> </p:column>
+                            </p:dataTable>
+                        </div>
+                    </p:panel>
+
+
+                </p:overlayPanel>
+
+            </h:form>
+
+
         </div>
 
 

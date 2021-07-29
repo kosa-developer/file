@@ -322,14 +322,14 @@ ps.close();
            con=Apache_Connectionpool.getInstance().getConnection();
             date = new Date();
 
-            PreparedStatement stmt = con.prepareStatement("select u.UID, u.FullName,u.UserName,u.Sex,u.`Status`,d.DepartmentName from users u inner join department d on u.DID=d.DID where u.Deleted='N'");
+            PreparedStatement stmt = con.prepareStatement("select u.UID, u.FullName,u.UserName,u.Sex,u.DID,u.`Status`,d.DepartmentName from users u inner join department d on u.DID=d.DID where u.Deleted='N'");
 
             ResultSet rs = stmt.executeQuery();
 
             List userList = new ArrayList();
 
             while (rs.next()) {
-                users = new Users(rs.getString("UID"), rs.getString("FullName"), rs.getString("UserName"), rs.getString("Sex"), rs.getString("Status"), rs.getString("DepartmentName"));
+                users = new Users(rs.getString("UID"), rs.getString("FullName"), rs.getString("UserName"), rs.getString("Sex"), rs.getString("Status"),rs.getInt("DID"), rs.getString("DepartmentName"));
                 userList.add(users);
             }
             con.close();

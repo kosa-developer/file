@@ -5,7 +5,6 @@ import managedDao.DynamicFunctionsDAO;
 import managedDao.LaboratoryDAO;
 import managedDao.RolesDAO;
 import managedDao.UsersDAO;
-import java.io.PrintStream;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
@@ -25,6 +24,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import managedModal.Department;
+import managedModal.DynamicFunctionModel;
 import managedModal.Roles;
 import managedModal.Staff;
 import managedModal.Users;
@@ -49,6 +49,7 @@ public class AdminBean
     private String new_password;
     private String sex;
     private Integer rid;
+    private Integer selecteduid;
     private Integer did;
     private String level;
     private String status;
@@ -56,6 +57,7 @@ public class AdminBean
     private String userrecordid;
     private Staff staff;
     private List<Department> departmentlist;
+    private List<DynamicFunctionModel> privillage_list;
     private Department selectedDepartment;
     private Users selectedUser;
     private String departmen_name;
@@ -69,6 +71,7 @@ public class AdminBean
     private String specific_test;
     private Integer sub_test_id;
     private String sub_test;
+    private Integer testprice;
     private String expected_result;
     private List<TestCategory> test_categories;
     private List<TestName> test_names;
@@ -90,6 +93,7 @@ public class AdminBean
         } catch (Exception e) {
             e.printStackTrace();
         }
+        this.test_categories=admin_get_test_categories();
     }
 
     public String getNew_department() {
@@ -106,6 +110,14 @@ public class AdminBean
 
     public String getRepassword() {
         return repassword;
+    }
+
+    public List<DynamicFunctionModel> getPrivillage_list() {
+        return privillage_list;
+    }
+
+    public void setPrivillage_list(List<DynamicFunctionModel> privillage_list) {
+        this.privillage_list = privillage_list;
     }
 
     public void setRepassword(String repassword) {
@@ -130,6 +142,14 @@ public class AdminBean
 
     public void setSelectedUser(Users selectedUser) {
         this.selectedUser = selectedUser;
+    }
+
+    public Integer getTestprice() {
+        return testprice;
+    }
+
+    public void setTestprice(Integer testprice) {
+        this.testprice = testprice;
     }
 
     public String getNew_password() {
@@ -314,6 +334,14 @@ public class AdminBean
 
     public void setDepartmentlist(List<Department> departmentlist) {
         this.departmentlist = departmentlist;
+    }
+
+    public Integer getSelecteduid() {
+        return selecteduid;
+    }
+
+    public void setSelecteduid(Integer selecteduid) {
+        this.selecteduid = selecteduid;
     }
 
     public Staff getStaff() {
@@ -660,32 +688,27 @@ public class AdminBean
         }
     }
 
-    public String add_department() {
+    public void add_department() {
         try {
 
             if (departmen_name.isEmpty() || department_desc.isEmpty()) {
                 FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Please Provide Needed Information.Thank You", "Failure"));
-                return "";
             } else {
                 if (DepartmentDAO.Department_Find(this.departmen_name)) {
                     FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Department Already Exists", "Failure"));
-                    return "";
                 } else {
 
                     if (DepartmentDAO.Department_Add(this.departmen_name, this.department_desc)) {
                         this.departmen_name = null;
                         this.department_desc = null;
                         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Department Added Successfully", "Success"));
-                        return "viewall";
                     } else {
                         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Transaction Error. Please Contact Your Administrator", "Failure"));
-                        return "";
                     }
                 }
             }
         } catch (Exception ex) {
             System.out.println("Error Message: add_department: " + ex.getMessage());
-            return "";
         }
     }
 
@@ -709,6 +732,7 @@ public class AdminBean
                         new_department = "";
                         new_department_desc = "";
                         this.selectedDepartment = new Department();
+                        view_department();
                         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Department Updated Successfully", "Success"));
                     } else {
                         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Transaction Error. Try Again", "Failure"));
@@ -779,7 +803,7 @@ public class AdminBean
             if (selectedUser.getUid().isEmpty()) {
                 FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, "There is NO USER selected.", "Failure"));
             } else {
-                if (UsersDAO.Users_Delete_User_Account(selectedUser.getUid())) {
+                if (DynamicFunctionsDAO.delete_dataTablestatic("users", "UID", selectedUser.getUid().toString())) {
                     clear();
                     selectedUser = new Users();
                     FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Successfully Deleted User", "Success"));
@@ -844,6 +868,7 @@ public class AdminBean
             if (LaboratoryDAO.Laboratory_Add_Test_Category(test_category)) {
                 FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Success"));
                 test_category = "";
+                admin_get_test_categories();
             } else {
                 FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Failure", "Failure"));
             }
@@ -854,9 +879,12 @@ public class AdminBean
 
     public void admin_add_test_name() {
         try {
-            if (LaboratoryDAO.Laboratory_Add_Test_Name(test_category_id, test_name)) {
+            if (LaboratoryDAO.Laboratory_Add_Test_Name(test_category_id, test_name,this.testprice)) {
                 FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Success"));
-                test_name = "";
+                this.test_name="";
+                this.test_category_id=null;
+                this.testprice=null;
+                
             } else {
                 FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Failure", "Failure"));
             }
@@ -893,11 +921,12 @@ public class AdminBean
 
     public void admin_add_expected_result() {
         try {
+             
             if (LaboratoryDAO.Laboratory_Add_Expected_Result(sub_test_id, expected_result)) {
                 FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Success"));
                 expected_result = "";
             } else {
-                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Failure", "Failure"));
+                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, "Failure", "Failure"));
             }
         } catch (Exception ex) {
             System.out.println("Exception In Admin Bean: admin_add_expected_result: " + ex.getMessage());
@@ -916,7 +945,7 @@ public class AdminBean
 
     public List<TestName> admin_get_test_names() {
         try {
-            test_names = LaboratoryDAO.Laboratory_Get_Test_Names(test_category_id);
+            test_names = LaboratoryDAO.Laboratory_Get_Test_Names();
             return test_names;
         } catch (Exception ex) {
             System.out.println("Exception In Admin Bean: admin_get_test_names: " + ex.getMessage());
@@ -1094,6 +1123,26 @@ public class AdminBean
         }
     }
 
+    public void edituser() {
+        if (selectedUser.getFullName().isEmpty() || selectedUser.getDid() == null) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Both Name and Department must be filled", "Error"));
+        } else {
+            String[][] userslist = {{"FullName", "DID"},
+            {selectedUser.getFullName(), selectedUser.getDid().toString()}};
+
+            try {
+                if (DynamicFunctionsDAO.Edit("users", userslist, "UID", selectedUser.getUid().toString())) {
+                    FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Data updated successfully", "Successful"));
+                } else {
+                    FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "select supplier and try again", "Successful"));
+                }
+            } catch (Exception e) {
+                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_FATAL, "Error: select a supplier and try again", "Successful"));
+
+            }
+        }
+    }
+
     public void cleardata() {
         this.fullName = "";
         this.sex = "";
@@ -1104,5 +1153,61 @@ public class AdminBean
         this.repassword = "";
         this.userName = "";
     }
+
+    public void viewprivillages(Integer id) {
+        this.selecteduid = id;
+        try {
+            this.privillage_list = DynamicFunctionsDAO.dropDowns("privillages", "Id", "Privillage", "UID", this.selecteduid.toString());
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error occured, contact the admininistrator", "Error"));
+        }
+
+    }
+
+    public void saveprivillage(String priv) {
+        try {
+            if (priv.equals("") || priv == null) {
+                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Select privillage:  ", null));
+
+            } else {
+
+                String[][] privillagelist = {{"UID", "Privillage"}, {this.selecteduid.toString(), priv}};
+
+                if (DynamicFunctionsDAO.Check_if_exsists("privillages", privillagelist)) {
+                    FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Duplicate privilllage:  ", null));
+                    cleardata();
+                } else {
+
+                    if (DynamicFunctionsDAO.Insert("privillages", privillagelist)) {
+                        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Privillage saved ", null));
+                        viewprivillages(this.selecteduid);
+                    } else {
+                        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error occured contact Administrator", null));
+
+                    }
+                }
+            }
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error occured contact Administrator" + e, null));
+
+        }
+    }
+
+    public void deletprivillage(String id) {
+     
+    
+        try {
+            if (id.equals("")) {
+                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, "Error contact administrator.", "Failure"));
+            } else {
+                if (DynamicFunctionsDAO.delete_dataTablestatic("privillages", "Id", id)) {
+                   viewprivillages(this.selecteduid);
+                  } else {
+                    FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Transaction Error.Check Error Log.", "Failure"));
+                }
+            }
+        } catch (Exception ex) {
+             }
+    
     //--------------------------------------------------------------------------------------------
-}
+}}

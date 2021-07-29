@@ -15,9 +15,18 @@ public class TestName implements Serializable {
     private Integer test_name_id;
     private String test_name;
     private String test_category;
+    private Integer testprice;
 
     public Integer getTest_category_id() {
         return test_category_id;
+    }
+
+    public Integer getTestprice() {
+        return testprice;
+    }
+
+    public void setTestprice(Integer testprice) {
+        this.testprice = testprice;
     }
 
     public void setTest_category_id(Integer test_category_id) {
@@ -48,7 +57,13 @@ public class TestName implements Serializable {
         this.test_category = test_category;
     }
     
-    
+    public TestName(Integer test_category_id,Integer test_name_id,String test_name,String test_category,Integer testprice){
+    this.test_category_id=test_category_id;
+    this.test_name_id=test_name_id;
+    this.test_name=test_name;
+    this.test_category=test_category;
+    this.testprice=testprice;
+    }
     
     
 }

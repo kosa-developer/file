@@ -23,11 +23,12 @@ public class Users
     public Users() {
     }
 
-    public Users(String uid, String fullName, String userName, String sex, String status, String department_name) {
+    public Users(String uid, String fullName, String userName, String sex, String status, Integer did, String department_name) {
         this.uid = uid;
         this.fullName = fullName;
         this.userName = userName;
         this.sex = sex;
+        this.did=did;
         this.status = status;
         this.department_name = department_name;
     }

@@ -1345,7 +1345,7 @@ public
     }
 
     public static
-            boolean Laboratory_Add_Test_Name(Integer category_id, String test_name) throws SQLException {
+            boolean Laboratory_Add_Test_Name(Integer category_id, String test_name, Integer testprice) throws SQLException {
 
         try {
             Connection con;
@@ -1355,11 +1355,12 @@ public
 
             con=Apache_Connectionpool.getInstance().getConnection();
 
-            PreparedStatement ps = con.prepareStatement("INSERT INTO test_names(category_id,test_name,record_date) VALUES(?,?,?)");
+            PreparedStatement ps = con.prepareStatement("INSERT INTO test_names(category_id,test_name,price,record_date) VALUES(?,?,?,?)");
 
             ps.setInt(1, category_id);
             ps.setString(2, test_name);
-            ps.setString(3, dateFormat.format(date));
+            ps.setInt(3, testprice);
+            ps.setString(4, dateFormat.format(date));
 
             ps.executeUpdate();
             con.close();
@@ -1494,7 +1495,7 @@ public
     }
 
     public static
-            List<TestName> Laboratory_Get_Test_Names(Integer test_category_id) throws SQLException {
+            List<TestName> Laboratory_Get_Test_Names() throws SQLException {
 
         try {
             Connection con;
@@ -1504,18 +1505,13 @@ public
             date = new Date();
 
 //            PreparedStatement stmt = con.prepareStatement("SELECT t.test_id,tc.category,tc.category_id,t.test_name FROM test_names t INNER JOIN test_categories tc ON tc.category_id=t.category_id WHERE t.category_id=? order by t.test_name ASC");
-            PreparedStatement stmt = con.prepareStatement("SELECT t.test_id,tc.category,tc.category_id,t.test_name FROM test_names t INNER JOIN test_categories tc ON tc.category_id=t.category_id WHERE t.category_id=? AND t.Status='TRUE' order by t.test_name ASC");
-            stmt.setInt(1, test_category_id);
-
+            PreparedStatement stmt = con.prepareStatement("SELECT t.test_id,tc.category,tc.category_id,t.test_name,t.price FROM test_names t INNER JOIN test_categories tc ON tc.category_id=t.category_id WHERE t.Status='TRUE' order by t.test_id Desc");
+           
             ResultSet rs = stmt.executeQuery();
             List test_names = new ArrayList();
 
             while (rs.next()) {
-                test_name = new TestName();
-                test_name.setTest_name_id(rs.getInt("test_id"));
-                test_name.setTest_category_id(rs.getInt("category_id"));
-                test_name.setTest_category(rs.getString("category"));
-                test_name.setTest_name(rs.getString("test_name"));
+                test_name = new TestName(rs.getInt("category_id"),rs.getInt("test_id"),rs.getString("test_name"),rs.getString("category"),rs.getInt("price"));
                 test_names.add(test_name);
             }
             con.close();
@@ -1539,10 +1535,8 @@ public
             date = new Date();
 
 //            PreparedStatement stmt = con.prepareStatement("SELECT s.specific_test_id,tc.category,t.test_name,s.specific_test FROM specific_tests s INNER JOIN test_names t ON t.test_id=s.test_id INNER JOIN test_categories tc ON tc.category_id=t.category_id WHERE t.test_id=? order by s.specific_test ASC");
-            PreparedStatement stmt = con.prepareStatement("SELECT s.specific_test_id,tc.category,t.test_name,s.specific_test FROM specific_tests s INNER JOIN test_names t ON t.test_id=s.test_id INNER JOIN test_categories tc ON tc.category_id=t.category_id WHERE t.test_id=? AND s.Status='TRUE' order by s.specific_test ASC");
+            PreparedStatement stmt = con.prepareStatement("SELECT s.specific_test_id,tc.category,t.test_name,s.specific_test FROM specific_tests s INNER JOIN test_names t ON t.test_id=s.test_id INNER JOIN test_categories tc ON tc.category_id=t.category_id WHERE s.Status='TRUE' order by s.specific_test_id Desc");
 
-//            
-            stmt.setInt(1, test_name_id);
 
             ResultSet rs = stmt.executeQuery();
             List specific_tests = new ArrayList();
@@ -1578,10 +1572,9 @@ public
 
 //            PreparedStatement stmt = con.prepareStatement("SELECT s.sub_test_id,tc.category,t.test_name,sp.specific_test,s.sub_test FROM sub_tests s INNER JOIN specific_tests sp ON sp.specific_test_id=s.specific_test_id INNER JOIN test_names t ON t.test_id=sp.test_id INNER JOIN test_categories tc ON tc.category_id=t.category_id WHERE s.specific_test_id=? order by s.sub_test ASC");
 
-            PreparedStatement stmt = con.prepareStatement(" SELECT s.sub_test_id,tc.category,t.test_name,sp.specific_test,s.sub_test FROM sub_tests s INNER JOIN specific_tests sp ON sp.specific_test_id=s.specific_test_id INNER JOIN test_names t ON t.test_id=sp.test_id INNER JOIN test_categories tc ON tc.category_id=t.category_id WHERE s.specific_test_id=? AND s.Status='TRUE' order by s.sub_test ASC");
+            PreparedStatement stmt = con.prepareStatement(" SELECT s.sub_test_id,tc.category,t.test_name,sp.specific_test,s.sub_test FROM sub_tests s INNER JOIN specific_tests sp ON sp.specific_test_id=s.specific_test_id INNER JOIN test_names t ON t.test_id=sp.test_id INNER JOIN test_categories tc ON tc.category_id=t.category_id WHERE s.Status='TRUE' order by s.sub_test_id Desc");
 //           
-            stmt.setInt(1, specific_test_id);
-
+           
             ResultSet rs = stmt.executeQuery();
             List sub_tests = new ArrayList();
 
@@ -1614,7 +1607,7 @@ public
             con=Apache_Connectionpool.getInstance().getConnection();
             date = new Date();
 
-            PreparedStatement stmt = con.prepareStatement("SELECT e.result_id,tc.category,t.test_name,st.specific_test,s.sub_test,e.result FROM expected_results e INNER JOIN sub_tests s ON e.sub_test_id=s.sub_test_id INNER JOIN specific_tests st ON st.specific_test_id=s.specific_test_id INNER JOIN test_names t ON t.test_id=st.test_id INNER JOIN test_categories tc ON tc.category_id=t.category_id order by tc.category ASC");
+            PreparedStatement stmt = con.prepareStatement("SELECT e.result_id,tc.category,t.test_name,st.specific_test,s.sub_test,e.result FROM expected_results e INNER JOIN sub_tests s ON e.sub_test_id=s.sub_test_id INNER JOIN specific_tests st ON st.specific_test_id=s.specific_test_id INNER JOIN test_names t ON t.test_id=st.test_id INNER JOIN test_categories tc ON tc.category_id=t.category_id order by e.result_id Desc");
 
             ResultSet rs = stmt.executeQuery();
             List expected_results = new ArrayList();

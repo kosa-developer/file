@@ -1,116 +1,72 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
 
+    <ui:define name="head">
+        <style type="text/css">
+            button.ui-button {
+                margin-right: .5rem;
+            }
+        </style>
+    </ui:define>
+
     <ui:define name="content">
+        <div class="p-grid card">
+            <div class="p-col-12 p-md-8 card">
+                <h:form id="depttable" >
 
-        <div class="card">
-   
-            <h:form>
-                 
-        <p:menubar>
-            <p:submenu label="File" icon="pi pi-fw pi-file">
-                <p:submenu label="New" icon="pi pi-fw pi-plus">
-                    <p:menuitem value="Bookmark" icon="pi pi-fw pi-bookmark"/>
-                    <p:menuitem value="Video" icon="pi pi-fw pi-video"/>
-                </p:submenu>
-                <p:menuitem value="Delete" icon="pi pi-fw pi-trash"/>
-                <p:divider />
-                <p:menuitem value="Export" icon="pi pi-fw pi-external-link"/>
-            </p:submenu>
+                    <p:dataTable id="departmentTable" value="#{adminBean.view_department()}"  widgetVar="deptData"
+                                 rows="8" paginator="true" scrollable="true"
+                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 currentPageReportTemplate="{startRecord}-{endRecord} of {totalRecords} records"
+                                 rowsPerPageTemplate="5,10,100,200,500,1000,{ShowAll|'All'}"
+                                 showGridlines="true" var="department" selectionMode="single"
+                                 selection="#{adminBean.selectedDepartment}" rowKey="#{department.did}" size="small" >
 
-            <p:submenu label="Edit" icon="pi pi-fw pi-pencil">
-                <p:menuitem value="Left" icon="pi pi-fw pi-align-left"/>
-                <p:menuitem value="Right" icon="pi pi-fw pi-align-right"/>
-                <p:menuitem value="Center" icon="pi pi-fw pi-align-center"/>
-                <p:menuitem value="Justify" icon="pi pi-fw pi-align-justify"/>
-            </p:submenu>
+                        <p:ajax event="rowSelect" process="@this" update="editdepart" />
 
-            <p:submenu label="Users" icon="pi pi-fw pi-user">
-                <p:menuitem value="New" icon="pi pi-fw pi-user-plus"/>
-                <p:menuitem value="Delete" icon="pi pi-fw pi-user-minus"/>
-                <p:submenu label="Search" icon="pi pi-fw pi-users">
-                    <p:submenu label="Filter" icon="pi pi-fw pi-filter">
-                        <p:menuitem value="Print" icon="pi pi-fw pi-print"/>
-                    </p:submenu>
-                    <p:menuitem value="List" icon="pi pi-fw pi-bars"/>
-                </p:submenu>
-            </p:submenu>
+                        <f:facet name="header">
+                            <div class="p-d-flex p-ai-center p-jc-between">
+                                <span>List of Departments</span>
+                            </div>
+                        </f:facet>
 
-            <p:submenu label="Events" icon="pi pi-fw pi-calendar">
-                <p:submenu label="Edit" icon="pi pi-fw pi-pencil">
-                    <p:menuitem value="Save" icon="pi pi-fw pi-calendar-plus"/>
-                    <p:menuitem value="Delete" icon="pi pi-fw pi-calendar-minus"/>
-                </p:submenu>
-                <p:submenu label="Archieve" icon="pi pi-fw pi-calendar-times">
-                    <p:menuitem value="Remove" icon="pi pi-fw pi-calendar-minus"/>
-                </p:submenu>
-            </p:submenu>
+                        <p:column headerText="Department Name" sortBy="#{department.departmentName}" filterBy="#{department.departmentName}" styleClass="tblcol8">  
+                            #{department.departmentName} 
+                        </p:column>
 
-            <p:divider layout="vertical"/>
+                        <p:column headerText="Description" styleClass="tblcol11">  
+                            #{department.description} 
+                        </p:column>
 
-            <p:menuitem value="Quit" icon="pi pi-fw pi-power-off"/>
+                    </p:dataTable>
 
-            <f:facet name="options">
-                <div class="ui-input-icon-left p-mr-2">
-                    <i class="pi pi-fw pi-search" />
-                    <p:inputText placeholder="Search"/>
-                </div>
-                <!--<p:button value="Logout" icon="pi pi-fw pi-sign-out" styleClass="ui-button-info"/>-->
-            </f:facet>
-        </p:menubar>
-    
-                <h5 class="p-mt-0">Basic</h5>
-                <p:panel id="pnl" header="New User">
-                    <h:panelGrid columns="3" cellpadding="7">
-                        <h:outputLabel for="firstname" value="Firstname: *"/>
-                        <p:inputText id="firstname"  required="true" label="Firstname">
-                            <f:validateLength minimum="2"/>
-                        </p:inputText>
-                        <p:message for="firstname"/>
+                </h:form>
 
-                        <h:outputLabel for="lastname" value="Lastname: *"/>
-                        <p:inputText id="lastname"  required="true" label="Lastname"/>
-                        <p:message for="lastname"/>
-                    </h:panelGrid>
+            </div>
+            <div class="p-col-12 p-md-4 card">
+                <h:form id="editdepart">
+                    <div class="ui-fluid p-formgrid p-grid p-col-12 p-md-12" >
+                        <div class="p-field ">
+                            <h:outputLabel value="Current Department Name:" />
+                            <p:inputText value="#{adminBean.selectedDepartment.departmentName}"  disabled="true"/>
 
-                    <p:commandButton id="saveBtn" value="Save" icon="pi pi-check"   styleClass="p-mt-3" />
-                </p:panel>
+                        </div>
+                        <div class="p-field ">
+                            <h:outputLabel value="Current Department Name:" />
+                            <p:inputText value="#{adminBean.new_department}" required="true"/>
 
-                <p:blockUI block="pnl" trigger="saveBtn"/>
+                        </div>
+                        <div class="p-field ">
+                            <h:outputLabel value="Description:" />
+                            <p:inputTextarea value="#{adminBean.new_department_desc}" required="true" />
 
-                <h5>Custom Content</h5>
+                        </div>
+                    </div>
 
-
-
-                <h5>Client Side API</h5>
-                <p:accordionPanel id="accordion" multiple="true">
-                    <p:tab title="Header I">
-                        <h:panelGrid columns="2" cellpadding="10">
-                            <h:outputText
-                                value="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."/>
-                        </h:panelGrid>
-                    </p:tab>
-                    <p:tab title="Header II">
-                        <h:panelGrid columns="2" cellpadding="10">
-                            <h:outputText
-                                value="Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Consectetur, adipisci velit, sed quia non numquam eius modi."/>
-                        </h:panelGrid>
-                    </p:tab>
-                    <p:tab title="Header III">
-                        <h:panelGrid columns="2" cellpadding="10">
-                            <h:outputText
-                                value="At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus."/>
-                        </h:panelGrid>
-                    </p:tab>
-                </p:accordionPanel>
-
-                <p:commandButton id="pnlBtn" value="Block Panel" type="button" onclick="PF('bui').show()" styleClass="p-mt-5 p-mr-2" />
-                <p:commandButton id="pnlBtn2" value="Unblock Panel" type="button" onclick="PF('bui').hide()" styleClass="p-mt-5 ui-button-outlined" />
-
-                <p:blockUI block="accordion" widgetVar="bui"/>
-
-            </h:form>
+                    <p:commandButton value="Apply Changes" update=":depttable:departmentTable,editdepart" action="#{adminBean.admin_update_department()}" style="font-size: 12px;" />
+                     <p:messages/>
+                </h:form>
+            </div>
         </div>
-
     </ui:define>
 </ui:composition>

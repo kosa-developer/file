@@ -32,7 +32,7 @@ import javax.faces.bean.ManagedBean;
 @ManagedBean(name = "app")
 public class App implements Serializable {
 
-    private String theme = "saga";
+    private String theme = "Health solution";
     private boolean darkMode = false;
     private String inputStyle = "outlined";
     private Country locale = new Country(0, Locale.US);

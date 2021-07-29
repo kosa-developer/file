@@ -4,112 +4,53 @@
     <ui:define name="content">
 
         <div class="card">
-   
-            <h:form>
-                 
-        <p:menubar>
-            <p:submenu label="File" icon="pi pi-fw pi-file">
-                <p:submenu label="New" icon="pi pi-fw pi-plus">
-                    <p:menuitem value="Bookmark" icon="pi pi-fw pi-bookmark"/>
-                    <p:menuitem value="Video" icon="pi pi-fw pi-video"/>
-                </p:submenu>
-                <p:menuitem value="Delete" icon="pi pi-fw pi-trash"/>
-                <p:divider />
-                <p:menuitem value="Export" icon="pi pi-fw pi-external-link"/>
-            </p:submenu>
+            <div class="p-grid">
+                <h:form id="form_category" class="card p-col-12 p-md-4">
 
-            <p:submenu label="Edit" icon="pi pi-fw pi-pencil">
-                <p:menuitem value="Left" icon="pi pi-fw pi-align-left"/>
-                <p:menuitem value="Right" icon="pi pi-fw pi-align-right"/>
-                <p:menuitem value="Center" icon="pi pi-fw pi-align-center"/>
-                <p:menuitem value="Justify" icon="pi pi-fw pi-align-justify"/>
-            </p:submenu>
-
-            <p:submenu label="Users" icon="pi pi-fw pi-user">
-                <p:menuitem value="New" icon="pi pi-fw pi-user-plus"/>
-                <p:menuitem value="Delete" icon="pi pi-fw pi-user-minus"/>
-                <p:submenu label="Search" icon="pi pi-fw pi-users">
-                    <p:submenu label="Filter" icon="pi pi-fw pi-filter">
-                        <p:menuitem value="Print" icon="pi pi-fw pi-print"/>
-                    </p:submenu>
-                    <p:menuitem value="List" icon="pi pi-fw pi-bars"/>
-                </p:submenu>
-            </p:submenu>
-
-            <p:submenu label="Events" icon="pi pi-fw pi-calendar">
-                <p:submenu label="Edit" icon="pi pi-fw pi-pencil">
-                    <p:menuitem value="Save" icon="pi pi-fw pi-calendar-plus"/>
-                    <p:menuitem value="Delete" icon="pi pi-fw pi-calendar-minus"/>
-                </p:submenu>
-                <p:submenu label="Archieve" icon="pi pi-fw pi-calendar-times">
-                    <p:menuitem value="Remove" icon="pi pi-fw pi-calendar-minus"/>
-                </p:submenu>
-            </p:submenu>
-
-            <p:divider layout="vertical"/>
-
-            <p:menuitem value="Quit" icon="pi pi-fw pi-power-off"/>
-
-            <f:facet name="options">
-                <div class="ui-input-icon-left p-mr-2">
-                    <i class="pi pi-fw pi-search" />
-                    <p:inputText placeholder="Search"/>
-                </div>
-                <!--<p:button value="Logout" icon="pi pi-fw pi-sign-out" styleClass="ui-button-info"/>-->
-            </f:facet>
-        </p:menubar>
-    
-                <h5 class="p-mt-0">Basic</h5>
-                <p:panel id="pnl" header="New User">
-                    <h:panelGrid columns="3" cellpadding="7">
-                        <h:outputLabel for="firstname" value="Firstname: *"/>
-                        <p:inputText id="firstname"  required="true" label="Firstname">
-                            <f:validateLength minimum="2"/>
+                    <h5 class="p-mt-0">Register Test categories</h5>
+                     <div class="ui-fluid p-formgrid p-grid p-col-12 p-md-12" >
+                    <div class="p-field ">
+                        <h:outputLabel value="Category Name:" />
+                        <p:inputText id="department" value="#{adminBean.test_category}" required="true" >
+                            <p:clientValidator/>
                         </p:inputText>
-                        <p:message for="firstname"/>
+                    </div>
+                     </div>
+                    <p:commandButton id="saveBtn" value="Save" action="#{adminBean.admin_add_test_category()}" update="categoryTbl,form_category" icon="pi pi-check"   styleClass="p-mt-3" />
 
-                        <h:outputLabel for="lastname" value="Lastname: *"/>
-                        <p:inputText id="lastname"  required="true" label="Lastname"/>
-                        <p:message for="lastname"/>
-                    </h:panelGrid>
+                    <p:messages/>
+                </h:form>
+                <h:form id="categoryTbl" class="card p-col-12 p-md-8">
+                    <p:dataTable id="categoryTble"  value="#{adminBean.admin_get_test_categories()}" rows="5" size="small" showGridlines="true"
+                                 paginator="true" scrollable="true"  editable="true" 
+                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 currentPageReportTemplate="{startRecord}-{endRecord} of {totalRecords} records"
+                                 rowsPerPageTemplate="5,10,100,200,500,1000,{ShowAll|'All'}" var="cat" style="width: 100%;"
+                                 emptyMessage="No Test Category Has Been Added ">
+                        <f:facet name="header">
+                            <div class="p-d-flex p-ai-center p-jc-between">
+                                <h5>Category List</h5>
+                               </div>
+                        </f:facet>
+                        <p:ajax event="rowEdit" listener="#{dynamicFunctionsBean.admin_edit_table_data('test_categories', 'category', 'category_id', cat.category_id, categoryname.value)}" update="categoryTble"  />
+                        <p:ajax event="rowEditCancel" listener="#{dynamicFunctionsBean.onRowCancel}" update="categoryTble" />
 
-                    <p:commandButton id="saveBtn" value="Save" icon="pi pi-check"   styleClass="p-mt-3" />
-                </p:panel>
+                        <p:column headerText="Category" filterBy="#{cat.category_desc}" >  
 
-                <p:blockUI block="pnl" trigger="saveBtn"/>
+                            <p:cellEditor>
+                                <f:facet name="output"><h:outputText value="#{cat.category_desc}" /></f:facet>
+                                <f:facet name="input"><p:inputText placeholder="#{cat.category_desc}" binding="#{categoryname}" class="form-control" label="categoryname"/></f:facet>
+                            </p:cellEditor>
+                        </p:column> 
 
-                <h5>Custom Content</h5>
+                        <p:column styleClass="tblcol2" >  
+                            <p:rowEditor id="deleteprivillage" />
+                            <p:tooltip for="deleteprivillage" value="edit category" position="right"/>
+                        </p:column> 
 
-
-
-                <h5>Client Side API</h5>
-                <p:accordionPanel id="accordion" multiple="true">
-                    <p:tab title="Header I">
-                        <h:panelGrid columns="2" cellpadding="10">
-                            <h:outputText
-                                value="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."/>
-                        </h:panelGrid>
-                    </p:tab>
-                    <p:tab title="Header II">
-                        <h:panelGrid columns="2" cellpadding="10">
-                            <h:outputText
-                                value="Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Consectetur, adipisci velit, sed quia non numquam eius modi."/>
-                        </h:panelGrid>
-                    </p:tab>
-                    <p:tab title="Header III">
-                        <h:panelGrid columns="2" cellpadding="10">
-                            <h:outputText
-                                value="At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus."/>
-                        </h:panelGrid>
-                    </p:tab>
-                </p:accordionPanel>
-
-                <p:commandButton id="pnlBtn" value="Block Panel" type="button" onclick="PF('bui').show()" styleClass="p-mt-5 p-mr-2" />
-                <p:commandButton id="pnlBtn2" value="Unblock Panel" type="button" onclick="PF('bui').hide()" styleClass="p-mt-5 ui-button-outlined" />
-
-                <p:blockUI block="accordion" widgetVar="bui"/>
-
-            </h:form>
+                    </p:dataTable>
+                </h:form>
+            </div>
         </div>
 
     </ui:define>

@@ -135,7 +135,7 @@ public class user {
 
                 HttpSession session = SessionUtils.getSession();
                 session.setAttribute("username", this.userName);
-                session.setAttribute("department", "Administration");
+                session.setAttribute("department", "Systems Developer");
 
                 return "dashboard.xhtml";
             }
@@ -147,11 +147,10 @@ public class user {
                 this.fullName = user.getFullName();
                 this.uid = user.getUid();
                 this.loggedin = UsersDAO.Users_Get_Details(this.userName, encryptpass(this.password));
-
-                UsersDAO.loginHistory(this.uid);
                 String _department = UsersDAO.User_Department(this.uid).trim();
                 HttpSession session = SessionUtils.getSession();
                 session.setAttribute("username", this.userName);
+                session.setAttribute("userid", this.uid);
                 session.setAttribute("department", _department);
 
                 Date currentdate = new Date();
@@ -164,9 +163,7 @@ public class user {
                     UsersDAO.UpdatedaysoutofStock();
 
                 }
-                   if (_department.equalsIgnoreCase("Administrator")) {
-                    return "users";
-                }
+                return "dashboard.xhtml";
 
             } else {
 

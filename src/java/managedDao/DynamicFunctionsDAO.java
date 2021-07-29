@@ -302,7 +302,28 @@ static Date date = new Date();
     }
 
     //delete data from any table basing on  specified ID of the very table
-    public static boolean delete_dataTable(String table, String Field_Id, String Id) throws SQLException {
+    
+    public static  boolean delete_dataTablestatic(String table, String Field_Id, String Id) throws SQLException {
+        try {
+            Connection con;
+
+            con = Apache_Connectionpool.getInstance().getConnection();
+
+            PreparedStatement ps = con.prepareStatement("delete from " + table + " where " + Field_Id + "=?");
+            ps.setString(1, Id);
+
+            ps.executeUpdate();
+
+            con.close();
+            ps.close();
+
+            return true;
+        } catch (Exception ex) {
+            ErrorDAO.Error_Add(new managedModal.Error("delete_dataTable", "deleting from " + table, " Message: " + ex.getMessage(), date));
+            return false;
+        }
+    }
+    public  boolean delete_dataTable(String table, String Field_Id, String Id) throws SQLException {
         try {
             Connection con;
 

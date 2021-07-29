@@ -1,39 +1,109 @@
-<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
-                xmlns:h="http://java.sun.com/jsf/html" 
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:ui="http://java.sun.com/jsf/facelets"
-                xmlns:p="http://primefaces.org/ui" 
+                xmlns:p="http://primefaces.org/ui"
                 template="/WEB-INF/template.xhtml">
 
     <ui:define name="content">
+        <div class="home">
+            <div id="homepage-intro" class="introduction #{app.darkMode ? 'introduction-dark' : ''}">
+                <div class="introduction-promo">Welcome Our Guest</div>
+                <div class="introduction-title">manage your clients with</div>
+                <div class="introduction-subtitle">Health solution</div>
+                <p:graphicImage alt="devices" styleClass="introduction-devices" name="images/home/health_info.jpg" library="showcase" />
+            </div>
 
-        <h:form>  
+            <div class="features">
+                <h4>Modules</h4>
+                <p>Great people look forward to great innovations! <span role="img" aria-label="celebrate" class="p-mx-2">🎉</span> We’re committed to serving you with dignity and respect! We treasure in providing you with innovations to meet all your needs and expectations. .</p>
 
-            <p:panel id="pnldepartments" style="margin-bottom:5px;color: #40356E;background-color: #f7f7f7; margin-right: 5px">
-                <p:dataTable id="departmentTable" value="#{adminBean.view_department()}"  
-                             paginator="true" rows="15" paginatorPosition="bottom" var="department" style="width: 100%;margin: 0 auto;">
+                <div class="p-grid">
+                    <div class="p-col-12 p-md-4">
+                        <div class="feature-card">
+                            <p:graphicImage name="images/home/triage-nurse.jpg" library="showcase" />
+                            <div class="feature-card-detail">
+                                <div class="feature-name">Triage/ Reception</div>
+                                <p>Managed by a nurse. Client biography and initial vitals are captured in this module</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-col-12 p-md-4">
+                        <div class="feature-card">
+                            <p:graphicImage name="images/home/doctor.jpg" library="showcase" />
+                            <div class="feature-card-detail">
+                                <div class="feature-name">Consultation</div>
+                                <p>Managed by Clinician or Medical officer.Records patient diagnosis and treatment.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-col-12 p-md-4">
+                        <div class="feature-card">
+                            <p:graphicImage name="images/home/accounts.jpg" library="showcase" />
+                            <div class="feature-card-detail">
+                                <div class="feature-name">Accounts</div>
+                                <p>Managed by Accountant. All payments are carried out here</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-col-12 p-md-4">
+                        <div class="feature-card">
+                            <p:graphicImage name="images/home/laboratory.jpg" library="showcase" />
+                            <div class="feature-card-detail">
+                                <div class="feature-name">Laboratory and Diagnostics</div>
+                                <p>Managed by lab technician / Lab assistant. All tests and diagnostics are recorded here </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-col-12 p-md-4">
+                        <div class="feature-card">
+                            <p:graphicImage name="images/home/pharmacy.jpg" library="showcase" />
+                            <div class="feature-card-detail">
+                                <div class="feature-name">Pharmacy</div>
+                                <p>Managed by Pharmacists. All Drugs and supplies purchases / issuing are managed here </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-col-12 p-md-4">
+                        <div class="feature-card">
+                            <p:graphicImage name="images/home/despensry.jpg" library="showcase" />
+                            <div class="feature-card-detail">
+                                <div class="feature-name">Dispensary</div>
+                                <p>Managed by a nurse. Here you record drugs given to the patient basing on prescriptions done by a Clinician</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-col-12 p-md-4">
+                        <div class="feature-card">
+                            <p:graphicImage name="images/home/ward2.jpg" library="showcase" />
+                            <div class="feature-card-detail">
+                                <div class="feature-name">Ward</div>
+                                <p>Managed by nurses and Medical officers. Patient admissions,vitals and continuous health conditions follow up. are assessed and recorded here</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-col-12 p-md-4">
+                        <div class="feature-card">
+                            <p:graphicImage name="images/home/radiographer.jpg" library="showcase" />
+                            <div class="feature-card-detail">
+                                <div class="feature-name">X-ray</div>
+                                <p>Managed by Radiographers. X ray images and interpretation is captured.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-col-12 p-md-4">
+                        <div class="feature-card">
+                            <p:graphicImage name="images/home/surgical.jpg" library="showcase" />
+                            <div class="feature-card-detail">
+                                <div class="feature-name">Surgery</div>
+                                <p>Managed Surgeon. Surgical procedures are and surgical appointments recorded for followups</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                    <p:column headerText="Index" styleClass="tblcol2">  
-                        #{department.did}
-                    </p:column> 
-
-                    <p:column headerText="Department Name"  styleClass="tblcol8">  
-                        #{department.departmentName} 
-                    </p:column>
-
-                    <p:column headerText="Description" styleClass="tblcol10">  
-                        #{department.description} 
-                    </p:column>
-
-                </p:dataTable>
-            </p:panel>
-            
-            <p:panel id="pnlaction" style="margin-bottom:5px;">
-                <p:commandButton value="Add New Department" action="#{adminBean.admin_go_to('addnew')}" style="font-size: 12px; padding-right: 15px;" />
-            </p:panel>
-
-        </h:form>
-
+        </div>
     </ui:define>
 
 </ui:composition>
