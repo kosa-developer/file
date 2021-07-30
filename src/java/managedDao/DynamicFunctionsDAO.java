@@ -1026,5 +1026,34 @@ static Date date = new Date();
             return false;
         }
     }
+ public static String autoID_many(String table, String field, Integer substring) throws SQLException, ClassNotFoundException {
+        String id = "";
+        String string_id = "";
+        try {
+            Connection con;
+            con = Apache_Connectionpool.getInstance().getConnection();
 
+            String query = "SELECT " + field + " FROM " + table + " order by SUBSTRING(" + field + "," + substring + ") DESC limit 1";
+            PreparedStatement stmt = con.prepareStatement(query);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                int sub_id, new_sub_id;
+                string_id = rs.getString(field).substring(substring - 1);
+                id = rs.getString(field).substring(0, substring - 1);
+                sub_id = Integer.parseInt(string_id);
+                new_sub_id = sub_id + 1;
+
+                id += (new_sub_id <= 9) ? "00" + new_sub_id : ((new_sub_id >= 10 && new_sub_id <= 99) ? "0" + new_sub_id : new_sub_id);
+
+            }
+            con.close();
+            return id;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return "";
+        }
+
+    }
+    
+     
 }
