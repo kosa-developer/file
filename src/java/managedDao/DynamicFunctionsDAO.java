@@ -1045,6 +1045,8 @@ static Date date = new Date();
 
                 id += (new_sub_id <= 9) ? "00" + new_sub_id : ((new_sub_id >= 10 && new_sub_id <= 99) ? "0" + new_sub_id : new_sub_id);
 
+            }else{
+            id="MEMB001";
             }
             con.close();
             return id;

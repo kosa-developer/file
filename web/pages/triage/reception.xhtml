@@ -6,6 +6,26 @@
                 template="/WEB-INF/template.xhtml">
 
     <ui:define name="head">
+        <script>
+            function validate(evt) {
+                var theEvent = evt || window.event;
+                var key = theEvent.keyCode || theEvent.which;
+                // Don't validate the input if below arrow, delete and backspace keys were pressed 
+                if (key === 37 || key === 38 || key === 39 || key === 40
+                        || key === 8 || key === 46) { // Left / Up / Right / Down Arrow, Backspace, Delete keys
+                    return;
+                }
+                key = String.fromCharCode(key);
+                var regex = /[0-9]|\.|\//;
+//                var regex = /[0-9]/;
+                if (!regex.test(key)) {
+                    theEvent.returnValue = false;
+                    if (theEvent.preventDefault)
+                        theEvent.preventDefault();
+                }
+            }
+
+        </script>
         <style type="text/css">
             button.ui-button {
                 margin-right: .5rem;
@@ -18,6 +38,7 @@
                 <h5>Patient information </h5>
             </div>
             <h:form id="receptionform">
+
                 <h:panelGrid columns="3" cellpadding="5">
                     <p:photoCam widgetVar="pc" listener="#{reception.oncapture}" update="photo"/>
                     <p:commandButton type="button" value="Capture" onclick="PF('pc').capture()"/>
@@ -31,7 +52,7 @@
                     <div class="p-col-12 p-md-4 p-sm-12 card">
                         <div class="ui-fluid">
                             <div class="p-field p-grid">
-                                <p:selectOneRadio id="console" value="#{radioView.console}" unselectable="true" required="true">
+                                <p:selectOneRadio id="console" value="#{reception.visittype}" unselectable="true" required="true">
                                     <f:selectItem itemLabel="New patient" itemValue="New patient"/>
                                     <f:selectItem itemLabel="Revisit" itemValue="Revisit"/>
                                 </p:selectOneRadio>
@@ -41,7 +62,7 @@
                             <div class="p-field p-grid">
                                 <p:outputLabel  styleClass="p-col-12 p-md-4" value="Patient Id"/>
                                 <div class="p-col-12 p-md-8">
-                                    <p:inputText  required="true" readonly="true"/>
+                                    <p:inputText value="#{reception.memberID}"  required="true" readonly="true"/>
                                 </div>
                             </div>
                         </div>
@@ -49,14 +70,14 @@
                             <div class="p-field p-grid">
                                 <p:outputLabel  styleClass="p-col-12 p-md-4" value="Patient name"/>
                                 <div class="p-col-12 p-md-8">
-                                    <p:inputText  required="true"/>
+                                    <p:inputText  required="true" value="#{reception.patientName}"/>
                                 </div>
                             </div>
                         </div> 
                         <div class="ui-fluid">
                             <div class="p-field p-grid">
                                 <p:outputLabel  styleClass="p-col-12 p-md-12" value="Patient category"/>
-                                <p:selectOneRadio   unselectable="true">
+                                <p:selectOneRadio  value="#{reception.category}"  unselectable="true">
                                     <f:selectItem itemLabel="Ugandan" itemValue="Ugandan"/>
                                     <f:selectItem itemLabel="Refugee" itemValue="Refugee"/>
                                     <f:selectItem itemLabel="Foreigner" itemValue="Foreigner"/>
@@ -67,7 +88,7 @@
                             <div class="p-field p-grid">
                                 <p:outputLabel  styleClass="p-col-12 p-md-4" value="NIN/ID"/>
                                 <div class="p-col-12 p-md-8">
-                                    <p:inputText />
+                                    <p:inputText value="#{reception.nin}" />
                                 </div>
                             </div>
                         </div>
@@ -81,13 +102,14 @@
                         <div class="ui-fluid">
                             <div class="p-field p-grid">
                                 <p:outputLabel  styleClass="p-col-12 p-md-2" value="DOB"/>
-                                <div class="p-col-12 p-md-5">
-                                    <p:calendar readonlyInput="true" yearRange="c-120:c+120" navigator="true"  pattern="dd-MM-yyyy"  /> 
+                                <div class="p-col-12 p-md-4">
+                                    <p:calendar readonlyInput="true" mindate="#{reception.getMaxAge()}" maxdate="#{reception.getMinAge()}" value="#{reception.dob}" yearRange="c-120:c+120" required="true" navigator="true"  pattern="dd-MM-yyyy" >
+                                        <p:ajax event="dateSelect" update="weightforheight,weightforheightlabel,age" listener="#{reception.returnAge}"  />
+                                    </p:calendar> 
                                 </div>
-                                <div class="p-field p-grid p-col-12 p-md-5">
-                                    <p:outputLabel  styleClass="p-col-12 p-md-3" value="Age"/>
-                                    <div class="p-col-12 p-md-9">
-                                        <p:inputText />
+                                <div class="p-field p-grid p-col-12 p-md-6">
+                                    <div class="p-col-12 p-md-12">
+                                        <p:inputText id="age" value="#{reception.convertedAge}" readonly="true" />
                                     </div>
                                 </div>
                             </div>
@@ -96,16 +118,18 @@
                             <div class="p-field p-grid">
                                 <div class="p-field p-grid p-col-12 p-md-5">
                                     <p:outputLabel  styleClass="p-col-12 p-md-2" value="Gender"/>
-                                    <p:selectOneRadio  unselectable="true">
-                                        <f:selectItem itemLabel="M" itemValue="M"/>
-                                        <f:selectItem itemLabel="F" itemValue="F"/>
+                                    <p:selectOneRadio value="#{reception.gender}"  unselectable="true" required="true">
+                                        <f:selectItem itemLabel="M" itemValue="Male"/>
+                                        <f:selectItem itemLabel="F" itemValue="Female"/>
+                                        <p:ajax event="change" listener="#{reception.calculate_bmi_or_zscore()}" update="weightforheight,weightforheightlabel"/>
+
                                     </p:selectOneRadio>
                                 </div>
 
                                 <div class="p-field p-grid p-col-12 p-md-7">
                                     <p:outputLabel  styleClass="p-col-12 p-md-12" value="Phone"/>
                                     <div class="p-col-12 p-md-12">
-                                        <p:inputText />
+                                        <p:inputText value="#{reception.phone}" />
                                     </div>
                                 </div>
                             </div>
@@ -114,7 +138,7 @@
                             <div class="p-field p-grid">
                                 <p:outputLabel  styleClass="p-col-12 p-md-4" value="District"/>
                                 <div class="p-col-12 p-md-8">
-                                    <p:inputText />
+                                    <p:inputText value="#{reception.district}" />
                                 </div>
                             </div>
                         </div>
@@ -122,7 +146,7 @@
                             <div class="p-field p-grid">
                                 <p:outputLabel  styleClass="p-col-12 p-md-4" value="Subcounty"/>
                                 <div class="p-col-12 p-md-8">
-                                    <p:inputText />
+                                    <p:inputText value="#{reception.subcounty}" />
                                 </div>
                             </div>
                         </div>
@@ -136,7 +160,7 @@
                             <div class="p-field p-grid">
                                 <p:outputLabel  styleClass="p-col-12 p-md-4" value="Village"/>
                                 <div class="p-col-12 p-md-8">
-                                    <p:inputText />
+                                    <p:inputText value="#{reception.village}" />
                                 </div>
                             </div>
                         </div>
@@ -146,7 +170,7 @@
                             <div class="p-field p-grid">
                                 <p:outputLabel  styleClass="p-col-12 p-md-4" value="Name"/>
                                 <div class="p-col-12 p-md-8">
-                                    <p:inputText />
+                                    <p:inputText value="#{reception.nxtname}" />
                                 </div>
                             </div>
                         </div>
@@ -154,7 +178,7 @@
                             <div class="p-field p-grid">
                                 <p:outputLabel  styleClass="p-col-12 p-md-4" value="Relationship"/>
                                 <div class="p-col-12 p-md-8">
-                                    <p:inputText />
+                                    <p:inputText value="#{reception.relationship}" />
                                 </div>
                             </div>
                         </div>
@@ -162,7 +186,7 @@
                             <div class="p-field p-grid">
                                 <p:outputLabel  styleClass="p-col-12 p-md-4" value="Phone"/>
                                 <div class="p-col-12 p-md-8">
-                                    <p:inputText />
+                                    <p:inputText value="#{reception.nxtphone}" />
                                 </div>
                             </div>
                         </div>
@@ -177,46 +201,50 @@
                             <div class="p-field p-grid">
                                 <p:outputLabel  styleClass="p-col-12 p-md-4" value="Weight:"/>
                                 <div class="p-col-12 p-md-8">
-                                    <p:spinner id="weightSpinner" size="4" value="#{receptionBean.reception_info.weight}" stepFactor="0.1" onkeypress="validate(event);
+                                    <p:spinner id="weightSpinner" size="4" value="#{reception.weight}" stepFactor="0.1" required="required" onkeypress="validate(event);
                                             if (event.keyCode == 13) {
                                                 calculateBMIorZscore()
                                             }
-                                            ;"><f:convertNumber pattern="#.#"/></p:spinner>
+                                            ;"><f:convertNumber pattern="#.#"/>
+                                        <p:ajax event="change" listener="#{reception.calculate_bmi_or_zscore()}" update="weightforheight,weightforheightlabel"/>
+                                    </p:spinner>
                                 </div>
                             </div>
                             <div class="p-field p-grid">
                                 <p:outputLabel  styleClass="p-col-12 p-md-4" value="Height"/>
                                 <div class="p-col-12 p-md-8">
-                                    <p:spinner id="heightSpinner" size="4" value="#{receptionBean.reception_info.height}" stepFactor="0.1" onkeypress="validate(event);
+                                    <p:spinner id="heightSpinner" size="4" required="true" value="#{reception.height}" stepFactor="0.1" onkeypress="validate(event);
                                             if (event.keyCode == 13) {
                                                 calculateBMIorZscore()
                                             }
-                                            ;"><f:convertNumber pattern="#.#"/></p:spinner>
+                                            ;"><f:convertNumber pattern="#.#"/>
+                                        <p:ajax event="change" listener="#{reception.calculate_bmi_or_zscore()}" update="weightforheight,weightforheightlabel"/>
+                                    </p:spinner>
                                 </div>
                             </div>
                             <div class="p-field p-grid">
-                                <p:outputLabel  styleClass="p-col-12 p-md-4" value="#{receptionBean.weight_for_height_label}"/>
+                                <p:outputLabel id="weightforheightlabel"  styleClass="p-col-12 p-md-4" value="#{reception.weight_for_height_label}"/>
                                 <div class="p-col-12 p-md-8">
-                                    <p:outputLabel id="weightforheight" value="#{receptionBean.reception_info.weight_For_Height}" style="color: blue;" />
+                                    <p:inputText readonly="true" id="weightforheight" value="#{reception.weight_For_Height}" style="color: blue;"/>
                                 </div>
                             </div>
                             <div class="p-field p-grid ">
                                 <p:outputLabel   styleClass="p-col-12 p-md-4" value="Temperature"/>
                                 <div class="p-col">
-                                    <p:spinner id="tempSpinner" size="4" value="#{receptionBean.reception_info.temperature}" stepFactor="0.01" onkeypress="validate(event);"/>
+                                    <p:spinner id="tempSpinner" size="4" value="#{reception.temperature}" stepFactor="0.01" onkeypress="validate(event);"/>
 
                                 </div>
                             </div>
                             <div class="p-field p-grid ">
                                 <p:outputLabel   styleClass="p-col-12 p-md-4" value="Oxgyen Saturation:"/>
                                 <div class="p-col">
-                                    <p:inputText value="#{receptionBean.reception_info.oxy_saturation}" onkeypress="validate(event);"/>
+                                    <p:inputText value="#{reception.oxy_saturation}" onkeypress="validate(event);"/>
                                 </div>
                             </div>
                             <div class="p-field p-grid ">
                                 <p:outputLabel   styleClass="p-col-12 p-md-4" value="Pulse:"/>
                                 <div class="p-col">
-                                    <p:inputText value="#{receptionBean.reception_info.heart_pulse}" onkeypress="validate(event);"/>
+                                    <p:inputText value="#{reception.heart_pulse}" onkeypress="validate(event);"/>
 
                                 </div>
                             </div>
@@ -227,14 +255,14 @@
                             <div class="p-field p-grid ">
                                 <p:outputLabel   styleClass="p-col-12 p-md-4" value="Blood Pressure:"/>
                                 <div class="p-col">
-                                    <p:inputText value="#{receptionBean.reception_info.blood_pressure}" onkeypress="validate(event);"/>
+                                    <p:inputText value="#{reception.blood_pressure}" onkeypress="validate(event);"/>
 
                                 </div>
                             </div>
                             <div class="p-field p-grid ">
                                 <p:outputLabel   styleClass="p-col-12 p-md-4" value="Respiratory Rate:"/>
                                 <div class="p-col">
-                                    <p:inputText value="#{receptionBean.reception_info.respiratory_rate}" onkeypress="validate(event);"/>
+                                    <p:inputText value="#{reception.respiratory_rate}" onkeypress="validate(event);"/>
 
                                 </div>
                             </div>
@@ -242,7 +270,7 @@
                             <div class="p-field p-grid ">
                                 <p:outputLabel   styleClass="p-col-12 p-md-4" value="ITN In Use:"/>
                                 <div class="p-col">
-                                    <p:selectOneMenu value="#{receptionBean.reception_info.itn_in_use}" required="true"> 
+                                    <p:selectOneMenu value="#{reception.itn_in_use}" required="true"> 
                                         <f:selectItem itemLabel="select" itemValue="" />  
                                         <f:selectItem itemLabel="True" itemValue="True" />  
                                         <f:selectItem itemLabel="False" itemValue="False" />  
@@ -252,13 +280,13 @@
                             <div class="p-field p-grid">
                                 <p:outputLabel  styleClass="p-col-12 p-md-4" value="MUAC:"/>
                                 <div class="p-col-12 p-md-8">
-                                    <p:inputText value="#{receptionBean.reception_info.muac}" onkeypress="validate(event);" />
+                                    <p:inputText value="#{reception.muac}" onkeypress="validate(event);" />
                                 </div>
                             </div>
                             <div class="p-field p-grid">
                                 <p:outputLabel  styleClass="p-col-12 p-md-4" value="Immunisation:"/>
                                 <div class="p-col-12 p-md-8">
-                                    <p:selectOneMenu value="#{receptionBean.reception_info.imm_status}" >
+                                    <p:selectOneMenu value="#{reception.imm_status}" >
                                         <f:selectItem itemLabel="Select" itemValue="Select" />  
                                         <f:selectItem itemLabel="Incomplete" itemValue="Incomplete" />  
                                         <f:selectItem itemLabel="Not Up To Date" itemValue="Not Up To Date" />
@@ -276,7 +304,7 @@
                             <div class="p-field p-grid">
                                 <p:outputLabel  styleClass="p-col-12 p-md-4" value="Tobacco Exposure:"/>
                                 <div class="p-col-12 p-md-8">
-                                    <p:selectOneMenu value="#{receptionBean.reception_info.smoker}">
+                                    <p:selectOneMenu value="#{reception.smoker}">
                                         <f:selectItem itemLabel="Select" itemValue="" />  
                                         <f:selectItem itemLabel="Current Smoker" itemValue="Current" />  
                                         <f:selectItem itemLabel="Previous Smoker" itemValue="Previous" />
@@ -288,7 +316,7 @@
                             <div class="p-field p-grid">
                                 <p:outputLabel  styleClass="p-col-12 p-md-4" value="Ever Drinks Alcohol:"/>
                                 <div class="p-col-12 p-md-8">
-                                    <p:selectOneMenu value="#{receptionBean.reception_info.alcohol}" >
+                                    <p:selectOneMenu value="#{reception.alcohol}" >
                                         <f:selectItem itemLabel="Select" itemValue="" />  
                                         <f:selectItem itemLabel="No" itemValue="No" />  
                                         <f:selectItem itemLabel="Yes" itemValue="Yes" />
@@ -299,7 +327,7 @@
                             <div class="p-field p-grid ">
                                 <p:outputLabel   styleClass="p-col-12 p-md-4" value="Reffered in"/>
                                 <div class="p-col">
-                                    <p:selectOneMenu required="true" >
+                                    <p:selectOneMenu required="true" value="#{reception.referral_status}" >
                                         <f:selectItem itemLabel="Select" itemValue="" />
                                         <f:selectItem itemLabel="No" itemValue="No"/>
                                         <f:selectItem itemLabel="Yes with form" itemValue="Yes-with form"/>
@@ -311,13 +339,13 @@
                             <div class="p-field p-grid">
                                 <p:outputLabel  styleClass="p-col-12 p-md-4" value="Reffered from"/>
                                 <div class="p-col-12 p-md-8">
-                                    <p:inputText />
+                                    <p:inputText value="#{reception.referred_from}" />
                                 </div>
                             </div>
                             <div class="p-field p-grid">
                                 <p:outputLabel  styleClass="p-col-12 p-md-4" value="Refferal Number"/>
                                 <div class="p-col-12 p-md-8">
-                                    <p:inputText />
+                                    <p:inputText value="#{reception.referral_num}" />
                                 </div>
                             </div>
                         </div>
@@ -325,7 +353,7 @@
                             <div class="p-field p-grid ">
                                 <p:outputLabel   styleClass="p-col-12 p-md-4" value="Problem and Reason for Visit:"/>
                                 <div class="p-col">
-                                    <p:inputTextarea  autoResize="false" value="#{receptionBean.reception_info.problem}"/>
+                                    <p:inputTextarea  autoResize="false" value="#{reception.problem}"/>
 
                                 </div>
                             </div>
@@ -334,7 +362,7 @@
                             <div class="p-field p-grid ">
                                 <p:outputLabel   styleClass="p-col-12 p-md-4" value="Triage Category:"/>
                                 <div class="p-col">
-                                    <p:selectOneMenu value="#{receptionBean.reception_info.triage_category}" required="true">  
+                                    <p:selectOneMenu value="#{reception.triage_category}" required="true">  
                                         <f:selectItem itemLabel="select" itemValue="" /> 
                                         <f:selectItem itemLabel="Green (Normal)" itemValue="Green" />  
                                         <f:selectItem itemLabel="Yellow (Priority)" itemValue="Yellow" />  
@@ -348,141 +376,103 @@
 
                 </div>
                 <p:messages id="notification"/>
-                <div class="card">
-                    <h5>Forward Patient</h5>
-                    <p:tabView dynamic="true" cache="true">
-                        <p:tab title="Consultation">
-                            <div class="p-col-12 p-md-12 p-sm-12">
-                                <div class="p-field p-grid p-col-12 p-md-4 p-sm-12">
-                                    <p:outputLabel   styleClass="p-col-12 p-md-4" value="Price:"/>
-                                    <div class="p-col">
-                                        <p:inputNumber/>
-                                    </div>
-                                </div>
-                                <p:selectBooleanCheckbox  value="#{receptionBean.reception_info.skip_accounts}" itemLabel="Skip Accounts" disabled="#{receptionBean.disable_skip}"/>  
-                                <p:commandButton value="Forward Patient" icon="pi pi-check" iconPos="right"  styleClass="ui-button-raised ui-button-primary" action="#{receptionBean.reception_forward_patient(userid.value)}" update=":receptionform:notification" />
-                                <p:commandButton value="Cancel" icon="pi pi-times" iconPos="right"  styleClass="ui-button-raised ui-button-warning" action="#{receptionBean.reception_clear_objects()}"   style="width: 100px;"/>
-
-                            </div>
-                        </p:tab>
-                        <p:tab title="Lab">
-                            <div class="p-grid">
-                                <div class="ui-fluid p-col-12 p-md-4 p-sm-12 card">
-                                    <div class="p-field p-grid ">
-                                        <p:outputLabel   styleClass="p-col-12 p-md-4" value="Test Category:"/>
-                                        <div class="p-col">
-                                            <p:selectOneMenu id="testcat" value="#{receptionBean.test_category_id}">  
-                                                <f:selectItem itemLabel="Select Category" itemValue="0" />  
-                                                <f:selectItems value="#{receptionBean.reception_get_test_categoryz()}" var="category" itemLabel="#{category.category_desc}" itemValue="#{category.category_id}" />  
-                                                <p:ajax listener="#{receptionBean.reception_get_test_names()}" update="testname"/>
-                                            </p:selectOneMenu>
-                                        </div>
-                                    </div>
-                                    <div class="p-field p-grid ">
-                                        <p:outputLabel   styleClass="p-col-12 p-md-4" value="Test Name:"/>
-                                        <div class="p-col">
-                                            <p:selectOneMenu id="testname" value="#{receptionBean.test_name_id}">  
-                                                <f:selectItem itemLabel="Select Test Name" itemValue="0" />  
-                                                <f:selectItems value="#{receptionBean.test_names}" var="test" itemLabel="#{test.test_name}" itemValue="#{test.test_name_id}" />  
-                                            </p:selectOneMenu>
-                                        </div>
-                                    </div>
-                                    <div class="p-field p-grid ">
-                                        <p:outputLabel   styleClass="p-col-12 p-md-4" value="Price:"/>
-                                        <div class="p-col">
-                                            <p:inputNumber/>
-                                        </div>
-                                    </div>
-                                    <div class="p-field p-grid ">
-                                        <p:outputLabel   styleClass="p-col-12 p-md-4" value="Priority:"/>
-                                        <div class="p-col">
-                                            <p:selectOneMenu value="#{receptionBean.lab_urgency}"> 
-                                                <f:selectItem itemLabel="Normal" itemValue="Normal" />  
-                                                <f:selectItem itemLabel="High" itemValue="High" />
-                                            </p:selectOneMenu>
-                                        </div>
-                                    </div>
-                                    <p:commandButton value="Add Test Request" style="width: 220px;" action="#{receptionBean.reception_add_test_request(userid.value)}" update=":receptionform:notification,selectedTests"/>
-
-                                </div>
-                                <div class="ui-fluid p-col-12 p-md-8 p-sm-12 card">
-                                    <p:dataTable id="selectedTests" value="#{receptionBean.tests_requested}" 
-                                                 paginator="true" rows="4" paginatorPosition="bottom" var="testrequest" style="width: 100%;">
-
-                                        <p:column headerText="Test Category" styleClass="tblcol4">  
-                                            #{testrequest.category_desc}
-                                        </p:column>  
-
-                                        <p:column headerText="Test Name" styleClass="tblcol10">  
-                                            #{testrequest.test_name}
-                                        </p:column>  
-                                        <p:column headerText="Price" styleClass="tblcol10">  
-                                            #{testrequest.test_name}
-                                        </p:column> 
-                                        <p:column styleClass="tblcol2">  
-                                            <p:commandLink value="Delete" style="color: black;width: 10%;" action="#{receptionBean.reception_laboratory_delete_pending(testrequest.request_id)}" update="selectedTests,:receptionform:notification"/>
-                                        </p:column> 
-
-                                    </p:dataTable>
-                                </div>
-                            </div>
-                            <div class="p-col-12 p-md-12 p-sm-12">
-                                <p:selectBooleanCheckbox  value="#{receptionBean.reception_info.skip_accounts}" itemLabel="Skip Accounts" disabled="#{receptionBean.disable_skip}"/>  
-                                <p:commandButton value="Forward Patient" icon="pi pi-check" iconPos="right"  styleClass="ui-button-raised ui-button-primary" action="#{receptionBean.reception_forward_patient(userid.value)}" update=":receptionform:notification" />
-                                <p:commandButton value="Cancel" icon="pi pi-times" iconPos="right"  styleClass="ui-button-raised ui-button-warning" action="#{receptionBean.reception_clear_objects()}"   style="width: 100px;"/>
-
-                            </div>
-                        </p:tab>
-                        <p:tab title="Ward">
-                            <div class="p-col-12 p-md-12 p-sm-12">
-
-                                <p:selectBooleanCheckbox  value="#{receptionBean.reception_info.skip_accounts}" itemLabel="Skip Accounts" disabled="#{receptionBean.disable_skip}"/>  
-                                <p:commandButton value="Forward Patient" icon="pi pi-check" iconPos="right"  styleClass="ui-button-raised ui-button-primary" action="#{receptionBean.reception_forward_patient(userid.value)}" update=":receptionform:notification" />
-                                <p:commandButton value="Cancel" icon="pi pi-times" iconPos="right"  styleClass="ui-button-raised ui-button-warning" action="#{receptionBean.reception_clear_objects()}"   style="width: 100px;"/>
-
-                            </div>
-                        </p:tab>
-                        <p:tab title="X ray">
-                            <div class="p-field p-grid p-col-12 p-md-4 p-sm-12">
-                                <p:outputLabel   styleClass="p-col-12 p-md-4" value="Price:"/>
-                                <div class="p-col">
-                                    <p:inputNumber/>
-                                </div>
-                            </div>
-                            <div class="p-col-12 p-md-12 p-sm-12">
-                                <p:selectBooleanCheckbox  value="#{receptionBean.reception_info.skip_accounts}" itemLabel="Skip Accounts" disabled="#{receptionBean.disable_skip}"/>  
-                                <p:commandButton value="Forward Patient" icon="pi pi-check" iconPos="right"  styleClass="ui-button-raised ui-button-primary" action="#{receptionBean.reception_forward_patient(userid.value)}" update=":receptionform:notification" />
-                                <p:commandButton value="Cancel" icon="pi pi-times" iconPos="right"  styleClass="ui-button-raised ui-button-warning" action="#{receptionBean.reception_clear_objects()}"   style="width: 100px;"/>
-
-                            </div> 
-                        </p:tab>
-                        <p:tab title="Surgery">
-                            <div class="p-field p-grid p-col-12 p-md-4 p-sm-12">
-                                <p:outputLabel   styleClass="p-col-12 p-md-4" value="Price:"/>
-                                <div class="p-col">
-                                    <p:inputNumber/>
-                                </div>
-                            </div>
-
-                            <div class="p-col-12 p-md-12 p-sm-12">
-                                <p:selectBooleanCheckbox  value="#{receptionBean.reception_info.skip_accounts}" itemLabel="Skip Accounts" disabled="#{receptionBean.disable_skip}"/>  
-                                <p:commandButton value="Forward Patient" icon="pi pi-check" iconPos="right"  styleClass="ui-button-raised ui-button-primary" action="#{receptionBean.reception_forward_patient(userid.value)}" update=":receptionform:notification" />
-                                <p:commandButton value="Cancel" icon="pi pi-times" iconPos="right"  styleClass="ui-button-raised ui-button-warning" action="#{receptionBean.reception_clear_objects()}"   style="width: 100px;"/>
-
-                            </div>
-
-                        </p:tab>
-                    </p:tabView>
-
-                </div>
-
             </h:form>
+
+            <div class="card">
+                <h5>Forward Patient</h5>
+
+                <h:form>
+                    <p:commandButton action="#{reception.fowardingbutton('consult')}" update="pannels" value="Consultation" styleClass="ui-button-secondary" icon="pi pi-check"  iconPos="right" />
+                    <p:commandButton action="#{reception.fowardingbutton('lab')}" update="pannels" value="Lab" styleClass="ui-button-success" icon="pi pi-check" iconPos="right" />
+                    <p:commandButton action="#{reception.fowardingbutton('ward')}" update="pannels" value="Ward" icon="pi pi-check" styleClass="ui-button-info" iconPos="right" />
+                    <p:commandButton action="#{reception.fowardingbutton('xray')}" update="pannels" value="X ray" icon="pi pi-check" styleClass="ui-button-help" iconPos="right" />
+                    <p:commandButton action="#{reception.fowardingbutton('surgery')}" update="pannels" value="Surgery" icon="pi pi-check" iconPos="right" styleClass="ui-button-warning" />
+                </h:form>
+                <h:form id="pannels">
+                    <p:panel id="pannelsc" rendered="#{reception.consult}" header="Consultation" >
+
+                    </p:panel>
+
+                    <p:panel id="pannelsl"  rendered="#{reception.lab}"  header="Lab" >
+                        <div class="ui-fluid p-formgrid p-grid p-col-12 p-md-12">
+                            <div class="p-field p-col-12 p-md-4">
+                                <p:outputLabel for="testcat" value="Test Category"/>
+                                <p:selectOneMenu id="testcat" value="#{reception.test_category_id}">  
+                                    <f:selectItem itemLabel="Select Category" itemValue="0" />  
+                                    <f:selectItems value="#{reception.reception_get_test_categoryz()}" var="category" itemLabel="#{category.category_desc}" itemValue="#{category.category_id}" />  
+                                    <p:ajax update="testname"/>
+                                </p:selectOneMenu>
+                            </div>
+                            <div class="p-field p-col-12 p-md-4">
+                                <p:outputLabel for="testname" value="Test Name"/>
+                                <p:selectOneMenu id="testname" value="#{reception.test_name_id}">  
+                                    <f:selectItem itemLabel="Select Test Name" itemValue="" />  
+                                    <f:selectItems value="#{dynamicFunctionsBean.ReturnSpecialdropdownList('test_names', 'test_id', 'test_name','category_id', reception.test_category_id)}" var="test" itemLabel="#{test.dropdownValue}" itemValue="#{test.dropdownId}" />  
+                                    <p:ajax  event="change" update="price" listener="#{reception.priceReturn()}"/>
+                                </p:selectOneMenu>
+                            </div>
+                            <div class="p-field p-col-12 p-md-2">
+                                <p:outputLabel for="price" value="Price"/>
+                                <p:inputText id="price" value="#{reception.price}"/>
+                            </div>
+                            <div class="p-field p-col-12 p-md-2">
+                                <p:outputLabel for="urgency" value="Priolity"/>
+                                <p:selectOneMenu id="urgency" value="#{reception.lab_urgency}"> 
+                                    <f:selectItem itemLabel="Normal" itemValue="Normal" />  
+                                    <f:selectItem itemLabel="High" itemValue="High" />
+                                </p:selectOneMenu>
+                            </div>
+
+                        </div>
+
+                        <p:commandButton update="testmsss,selectedTests" action="#{reception.reception_add_test_request()}"  value="add test" styleClass="ui-button-secondary" icon="pi pi-check"  iconPos="right" />
+                        <p:messages id="testmsss"/>
+                        <div class="card ui-fluid p-formgrid p-grid p-col-12 p-md-12">
+                            <p:dataTable id="selectedTests" value="#{reception.tests_requested}" 
+                                         paginator="true" rows="4" paginatorPosition="bottom" var="testrequest" style="width: 100%;">
+
+                                <p:column headerText="Test Category" styleClass="tblcol4">  
+                                    #{testrequest.category_desc}
+                                </p:column>  
+
+                                <p:column headerText="Test Name" styleClass="tblcol10">  
+                                    #{testrequest.test_name}
+                                </p:column>  
+                                <p:column headerText="Price" styleClass="tblcol10">  
+                                    #{testrequest.price}
+                                </p:column> 
+                                <p:column styleClass="tblcol2">  
+                                    <p:commandLink value="Delete" update="selectedTests" style="color: black;width: 10%;" action="#{reception.reception_laboratory_delete_pending(testrequest.request_id)}" />
+                                </p:column> 
+
+                            </p:dataTable>
+  
+                        </div>
+                        <p:selectBooleanCheckbox id="skipacc" value="#{reception.skip_accounts}" itemLabel="Skip Accounts"/>  
+                        <p:commandButton value="Forward Patient" action="#{reception.submit('Laboratory')}" update="receptionform,selectedTests" styleClass="ui-button-primary" icon="pi pi-check"  iconPos="right"  />
+
+                      
+                    </p:panel>
+                    <p:panel id="pannelsw" rendered="#{reception.ward}"  header="Ward" >
+
+                    </p:panel>
+                    <p:panel id="pannelsx" rendered="#{reception.xray}"  header="X ray" >
+
+                    </p:panel>
+                    <p:panel id="pannelss" rendered="#{reception.surgery}"  header="Surgery" >
+
+                    </p:panel>
+                </h:form>
+
+
+
+
+
+            </div>
+
+
         </div>
 
-        <h:form id="testform">
-            <p:messages/>
-            <p:commandButton value="test" action="#{reception.submit()}" update="testform"/>
-        </h:form>
     </ui:define>
 
 </ui:composition>
