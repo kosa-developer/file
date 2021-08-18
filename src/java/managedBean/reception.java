@@ -29,11 +29,14 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.servlet.http.HttpSession;
+import managedDao.ConsultantDAO;
 import managedDao.DynamicFunctionsDAO;
 import managedDao.LaboratoryDAO;
 import managedDao.ReceptionDAO;
 import managedModal.LabTest;
+import managedModal.ReceptionTask;
 import managedModal.TestCategory;
+import menu.AppMenu;
 import org.primefaces.event.SelectEvent;
 
 @ManagedBean(name = "reception")
@@ -567,6 +570,31 @@ public class reception implements Serializable {
 
     }
 
+    public void returndob() {
+        try {
+
+            Integer aggediff, age = Integer.parseInt(ConvertedAge);
+            aggediff = 0;
+            this.Age = age;
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+            Date now = new Date();
+            String yy, mm, dd, newdob, date = format.format(now);
+            yy = date.substring(0, 4);
+            mm = date.substring(5, 7);
+            dd = date.substring(8, 10);
+
+            aggediff = Integer.parseInt(yy) - age;
+            newdob = aggediff + "-" + mm + "-" + dd;
+            this.dob = new SimpleDateFormat("yyyy-MM-dd").parse(newdob);
+
+            calculate_bmi_or_zscore();
+
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, "please enter figures only", "Successful"));
+
+        }
+    }
+
     public void returnAge(SelectEvent event) {
 
         try {
@@ -680,8 +708,9 @@ public class reception implements Serializable {
 
     public void calculate_bmi_or_zscore() {
         try {
+
+            calculate_weightForAge_or_HeightForAge_zscore();
             if (this.Age == null) {
-                calculate_weightForAge_or_HeightForAge_zscore();
                 this.weight_For_Height = "";
                 this.weight_for_height_label = "";
             } else if (this.Age >= 5) {
@@ -801,7 +830,7 @@ public class reception implements Serializable {
             if (!LaboratoryDAO.Laboratory_Delete_Pending(request_id)) {
                 FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Transaction Error.Please Contact Your Administrator", "Failure"));
             } else {
-                this.tests_requested = LaboratoryDAO.Laboratory_Get_Tests_Requested(String.valueOf(this.generated_task_id));
+                this.tests_requested = LaboratoryDAO.Laboratory_Get_Tests_Requested(String.valueOf(this.trans_id));
                 FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Test Request Delete", "Successful"));
             }
         } catch (Exception ex) {
@@ -809,7 +838,7 @@ public class reception implements Serializable {
         }
     }
 
-    public void submit(String fowardsection) {
+    public void renamephoto() {
 
         ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
         String oldFileName = externalContext.getRealPath("") + File.separator + "resources" + File.separator + "demo"
@@ -824,38 +853,117 @@ public class reception implements Serializable {
         } else {
 
         }
-        calculate_bmi_or_zscore();
+    }
 
+    public void savedata() {
+        calculate_bmi_or_zscore();
+        renamephoto();
         String date, nowdate;
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         date = format.format(dob);
         HttpSession session = SessionUtils.getSession();
-
         String user_id = session.getAttribute("userid").toString();
         Date now = new Date();
         nowdate = format.format(now);
+        if (trans_id == null) {
+            trans_id = UUID.randomUUID();
+        }
 
-        String[][] recptiondata = {{"Patient_Name", "Patient_Category", "Patient_NIN", "DOB", "Age",
+        String[][] recptiondata = {{"Patient_Id", "Track_Id", "Patient_Name", "Patient_Category", "Patient_NIN", "DOB", "Age",
             "Patient_phone", "Gender", "Village_Name", "Subcounty_Name", "District", "Next_Kin", "Next_Kin_Relationship", "Next_Kin_Phone",
             "Referral_Status", "Referred_From", "Referral_Num", "Weight", "Height", "Weight_For_Height", "Weight_for_age", "Height_for_age",
             "Temperature", "Oxy_Saturation", "Heart_Pulse", "Blood_Pressure", "Respiratory_Rate", "ItnUse",
-            "Problem", "muac", "Immunisation", "Smoker", "Alcohol", "Triage_Category", "Skip_Accounts", "Forward_To_Section",
+            "Problem", "muac", "Immunisation", "Smoker", "Alcohol", "Triage_Category",
             "VisitDate", "Reception_User_Id"},
-        {patientName, patientCategory, nin, date, Age.toString(), phone, gender, village, subcounty, district, nxtname, relationship,
+        {memberID, trans_id.toString(), patientName, patientCategory, nin, date, Age.toString(), phone, gender, village, subcounty, district, nxtname, relationship,
             nxtphone, referral_status, referred_from, referral_num, String.valueOf(weight), String.valueOf(height), weight_For_Height, Weight_for_age,
             Height_for_age, temperature, oxy_saturation, heart_pulse, blood_pressure, respiratory_rate, String.valueOf(itn_in_use),
-            problem, muac, imm_status, smoker, alcohol, triage_category, String.valueOf(skip_accounts), fowardsection, nowdate, user_id}};
+            problem, muac, imm_status, smoker, alcohol, triage_category, nowdate, user_id}};
 
-        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, " " + this.memberID, "Success"));
+        try {
+            if (DynamicFunctionsDAO.Check_if_exsists(memberID, "frontdesk_tasks", "Patient_Id")) {
+                if (DynamicFunctionsDAO.Edit("frontdesk_tasks", recptiondata, "Patient_Id", this.memberID)) {
+                    FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Data has been Updated successfully", "Success"));
+                }
+
+            } else {
+                if (DynamicFunctionsDAO.Insert("frontdesk_tasks", recptiondata)) {
+                    FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Data has been saved successfully", "Success"));
+
+                }
+            }
+
+        } catch (Exception e) {
+
+        }
+    }
+
+    public void forwardpatient() {
+        HttpSession session = SessionUtils.getSession();
+        String user_id = session.getAttribute("userid").toString();
+        String fowardsection = (lab) ? "Laboratory" : (xray) ? "X-ray" : (ward) ? "Ward" : (surgery) ? "Surgery" : (consult) ? "Consultant" : "";
+
+        if (fowardsection.equals("") || fowardsection.isEmpty()) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Please choose where to foward. and try again", "Success"));
+
+        } else {
+            String[][] fowardingdata = {{"Forward_To_Section", "Skip_Accounts"},
+            {fowardsection, String.valueOf(skip_accounts)}};
+
+            try {
+                if (DynamicFunctionsDAO.Check_if_exsists(this.memberID, "frontdesk_tasks", "Patient_Id")) {
+                    if (DynamicFunctionsDAO.Edit("frontdesk_tasks", fowardingdata, "Patient_Id", this.memberID)) {
+                        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Patient has been fowarded", "Success"));
+                        if ("Consultant".equalsIgnoreCase(fowardsection)) {
+                            if (ReceptionDAO.Reception_Consultant_Pending(trans_id.toString(), user_id, false)) {
+                                ConsultantDAO.Consultant_Time_Audit_Start(trans_id.toString(), user_id);
+                                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Infomation Added Successfully", "Successful"));
+                            } else {
+                                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Task Saved Successfully BUT has Not Been Forward.Contact The Administrator To Finf Out The Possible Cause of the Error", "Failure"));
+                            }
+                        } else if ("Laboratory".equalsIgnoreCase(fowardsection)) {
+
+                            if (LaboratoryDAO.Laboratory_Add_Pending(String.valueOf(trans_id), user_id, "", lab_urgency, reception_generate_lab_id(String.valueOf(trans_id)))) {
+                                LaboratoryDAO.Laboratory_Time_Audit_Add(String.valueOf(trans_id), user_id);
+                            }
+                        }
+
+                        clearfields();
+                        this.tests_requested = LaboratoryDAO.Laboratory_Get_Tests_Requested(String.valueOf(this.trans_id));
+
+                    } else {
+                        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "An error has occured please contact the administrator", "Success"));
+
+                    }
+
+                }
+            } catch (Exception e) {
+                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "An error has occured please contact the administrator", "Success"));
+
+            }
+
+        }
+    }
+
+    public void confirmrequest() {
+        HttpSession session = SessionUtils.getSession();
+        String user_id = session.getAttribute("userid").toString();
+
+        String[][] fowardingdata = {{"Forward_To_Section", "Skip_Accounts"},
+        {"Laboratory", String.valueOf(skip_accounts)}};
 
         try {
             if (DynamicFunctionsDAO.Check_if_exsists(this.memberID, "frontdesk_tasks", "Patient_Id")) {
-                if (DynamicFunctionsDAO.Edit("frontdesk_tasks", recptiondata, "Patient_Id", this.memberID)) {
-                    FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Data has been saved successfully", "Success"));
+                if (DynamicFunctionsDAO.Edit("frontdesk_tasks", fowardingdata, "Patient_Id", this.memberID)) {
+                    FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Patient has been fowarded", "Success"));
+
+                    if (LaboratoryDAO.Laboratory_Add_Pending(String.valueOf(trans_id), user_id, "", lab_urgency, reception_generate_lab_id(String.valueOf(trans_id)))) {
+                        LaboratoryDAO.Laboratory_Time_Audit_Add(String.valueOf(trans_id), user_id);
+                    }
 
                     clearfields();
-                      this.tests_requested = LaboratoryDAO.Laboratory_Get_Tests_Requested(String.valueOf(this.generated_task_id));
-              
+                    this.tests_requested = LaboratoryDAO.Laboratory_Get_Tests_Requested(String.valueOf(this.trans_id));
+
                 } else {
                     FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "An error has occured please contact the administrator", "Success"));
 
@@ -918,7 +1026,8 @@ public class reception implements Serializable {
         surgery = false;
         consult = false;
         Age = null;
-       
+        this.trans_id = null;
+
         price = null;
         dob = null;
         weight = Double.NaN;
@@ -927,5 +1036,50 @@ public class reception implements Serializable {
         Height_for_age = "";
         Weight_for_age = "";
         skip_accounts = false;
+    }
+
+    public List<ReceptionTask> reception_get_transactions() {
+        try {
+            return ReceptionDAO.Reception_Get_Transactions();
+        } catch (Exception ex) {
+            System.err.println("ReceptionBean Error: Method: reception_get_transactions " + ex.getMessage());
+        }
+        return null;
+    }
+
+    private String reception_generate_lab_id(String task_id) {
+        try {
+            Integer pending_count = LaboratoryDAO.Laboratory_Get_Pending_Count();
+            Integer completed_count = LaboratoryDAO.Laboratory_Get_Completed_Count();
+            String lab_id = LaboratoryDAO.Laboratory_Get_Lab_Id(task_id);
+            Calendar cal = Calendar.getInstance();
+            Integer year = cal.get(Calendar.YEAR);
+
+            if (lab_id == null) {
+                Integer total_count = pending_count + completed_count;
+                if (total_count < 10) {
+                    //format :: 000000-current_year
+                    return "00000" + total_count.toString() + "-" + year.toString();
+                } else if ((total_count < 100) && (total_count > 9)) {
+                    return "0000" + total_count.toString() + "-" + year.toString();
+                } else if ((total_count < 1000) && (total_count > 99)) {
+                    return "000" + total_count.toString() + "-" + year.toString();
+                } else if (total_count < 10000 && total_count > 999) {
+                    return "00" + total_count.toString() + "-" + year.toString();
+                } else if (total_count < 100000 && total_count > 9999) {
+                    return "0" + total_count.toString() + "-" + year.toString();
+                } else if (total_count > 99999) {
+                    return total_count.toString() + "-" + year.toString();
+                }
+                return total_count.toString() + "-" + year.toString();
+            } else {
+                return lab_id;
+            }
+
+        } catch (Exception ex) {
+            System.err.println("ReceptionBean Error: Method: reception_get_non_registered_patient_id " + ex.getMessage());
+            return "";
+        }
+
     }
 }

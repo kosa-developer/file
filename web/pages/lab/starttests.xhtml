@@ -1,0 +1,62 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+
+    <ui:define name="head">
+        <style type="text/css">
+            .ui-datatable .ui-datatable-footer {
+                text-align:left;
+            }
+        </style>
+    </ui:define>
+
+    <ui:define name="title">Laboratory - Start Test</ui:define>
+  
+    <ui:define name="content">
+        <h:form id="frmlab">  
+            <p:dataTable id="selectedTests" value="#{laboratoryBean.tests_requested}" 
+                         paginator="true" rows="8" paginatorPosition="bottom" var="testrequest" style="width: 100%"
+                         selection="#{laboratoryBean.selected_lab_tests}" rowKey="#{testrequest.test_id}"
+                         emptyMessage="#{laboratoryBean.sample_taken_msg}">
+               
+                <f:facet name="header">  
+                    Requested Tests For Patient:#{laboratoryBean.patient_view.fullname}
+                </f:facet>
+
+                <p:column headerText="Test Id" styleClass="tblcol1">  
+                    #{testrequest.test_id}
+                </p:column>  
+
+                <p:column headerText="Test Category" styleClass="tblcol6">  
+                    #{testrequest.category_desc}
+                </p:column>  
+
+                <p:column headerText="Test Name" styleClass="tblcol7">  
+                    #{testrequest.test_name}
+                </p:column>  
+
+                <p:column headerText="Requested By" styleClass="tblcol6">  
+                    #{testrequest.requested_by}
+                </p:column>  
+
+                <p:column selectionMode="multiple" headerText="ST" styleClass="tblcol3"/>
+
+                <f:facet name="footer">  
+                    <p:commandButton id="STButton" value="Sample Taken" icon="ui-icon-search"  
+                                     update=":frmlab:selectedTests,:frmlab:notification" action="#{laboratoryBean.laboratory_samples_taken()}"/>  
+                    <p:spacer width="15"/>
+                    <p:commandButton id="SRButton" value="Submit Results" icon="ui-icon-search" action="#{laboratoryBean.laboratory_submitted_test_results()}"/>
+                </f:facet>
+
+            </p:dataTable>
+
+            <p:growl id="notification" sticky="true"/>
+            
+        </h:form>
+    </ui:define>
+
+</ui:composition>

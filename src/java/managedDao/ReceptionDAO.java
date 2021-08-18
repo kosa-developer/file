@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import managedModal.Error;
+import managedModal.Patient;
 import managedModal.ReceptionInfo;
 import managedModal.ReceptionTask;
 
@@ -264,7 +265,7 @@ public class ReceptionDAO
             con=Apache_Connectionpool.getInstance().getConnection();
             date = new Date();
             
-            PreparedStatement stmt = con.prepareStatement("select f.Track_Id,f.Patient_Id,f.Patient_Name,f.Age,f.Gender,f.VisitReason,f.Problem,f.Triage_Category,f.Room_No,f.Record_Date_In from frontdesk_tasks f order by f.Record_Date_In desc limit 50;");
+            PreparedStatement stmt = con.prepareStatement("select f.Track_Id,f.Patient_Id,f.Patient_Name,TIMESTAMPDIFF(YEAR, f.DOB, CURDATE()) AS Age,f.Gender,f.VisitReason,f.Problem,f.Triage_Category,f.Room_No,f.Record_Date_In from frontdesk_tasks f order by f.Record_Date_In desc limit 50;");
             
             ResultSet rs = stmt.executeQuery();
             List receptiontask_list = new ArrayList();
@@ -307,7 +308,7 @@ public class ReceptionDAO
             con=Apache_Connectionpool.getInstance().getConnection();
             date = new Date();
             
-            stmt = con.prepareStatement("select f.Referral_Status,f.Patient_Name,f.Age,f.Age_Months,f.Age_Days,f.Gender,s.SubcountyName,p.ParishName,v.VillageName,f.Referred_From,f.Weight,f.Height,f.Temperature,f.Oxy_Saturation,f.Heart_Pulse,f.Blood_Pressure,f.Respiratory_Rate,f.FamilyPlanning,f.ItnUse,f.VisitReason,f.Problem,f.muac,f.Triage_Category,f.Skip_Accounts,f.Forward_To_Section,f.Weight_For_Height,f.Weight_for_age,f.Height_for_age,f.Record_Errors from frontdesk_tasks f inner join subcounty s on f.Subcounty_Id=s.SubcountyId inner join parishes p on f.Parish_Id=p.ParishId inner join village v on f.Village_Id=v.VillageId where f.Track_Id=?");
+            stmt = con.prepareStatement("select f.Referral_Status,f.Patient_Name,TIMESTAMPDIFF(YEAR, f.DOB, CURDATE()) AS Age,f.Age_Months,f.Age_Days,f.Gender,f.District,f.Subcounty_Name,f.Village_Name,f.Referred_From,f.Weight,f.Height,f.Temperature,f.Oxy_Saturation,f.Heart_Pulse,f.Blood_Pressure,f.Respiratory_Rate,f.FamilyPlanning,f.ItnUse,f.VisitReason,f.Problem,f.muac,f.Triage_Category,f.Skip_Accounts,f.Forward_To_Section,f.Weight_For_Height,f.Weight_for_age,f.Height_for_age,f.Record_Errors from frontdesk_tasks f  where f.Track_Id=?");
             
             stmt.setString(1, task_id);
             
@@ -342,9 +343,9 @@ public class ReceptionDAO
                 receptionInfo.setAge_months(Integer.valueOf(rs.getInt("Age_Months")));
                 receptionInfo.setFullname(rs.getString("Patient_Name"));
                 receptionInfo.setGender(rs.getString("Gender"));
-                receptionInfo.setSubcounty(rs.getString("SubcountyName"));
-                receptionInfo.setVillage(rs.getString("VillageName"));
-                receptionInfo.setParish(rs.getString("ParishName"));
+                receptionInfo.setSubcounty(rs.getString("Subcounty_Name"));
+                receptionInfo.setVillage(rs.getString("Village_Name"));
+                receptionInfo.setParish(rs.getString("District"));
                 
                 con.close();
                 return receptionInfo;
@@ -522,6 +523,47 @@ public class ReceptionDAO
             return receptiontask_list;
         } catch (Exception ex) {
             ErrorDAO.Error_Add(new Error("Reception DAO", "Reception_Get_Search_Results", " Message: " + ex.getMessage() + query_string, date));
+            return null;
+        }
+    }
+     public static Patient Reception_Retrieve_Patient_Details(String task_id) throws SQLException {
+        
+        try {
+            Connection con;
+            PreparedStatement stmt;
+            
+            con=Apache_Connectionpool.getInstance().getConnection();
+            date = new Date();
+            
+            stmt = con.prepareStatement("select f.Patient_Id,f.Patient_Name,f.Gender,TIMESTAMPDIFF(YEAR, f.DOB, CURDATE()) AS Age,f.Age_Days,f.Age_Months,f.Weight_For_Height,f.Weight_for_age,f.Height_for_age,f.Village_Name,f.Subcounty_Name,f.District,f.Member,f.Subscription_Expired from frontdesk_tasks f where f.Track_Id=?");
+            stmt.setString(1, task_id);
+            
+            ResultSet rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                Patient patient = new Patient();
+                patient.setMemberId(rs.getString("Patient_Id"));
+                patient.setFullname(rs.getString("Patient_Name"));
+                patient.setMemberGender(rs.getString("Gender"));
+                patient.setAge(Integer.valueOf(rs.getInt("Age")));
+                patient.setAge_days(Integer.valueOf(rs.getInt("Age_Days")));
+                patient.setAge_months(Integer.valueOf(rs.getInt("Age_Months")));
+                patient.setSubcounty(rs.getString("Subcounty_Name"));
+                patient.setParish(rs.getString("District"));
+                patient.setVillage(rs.getString("Village_Name"));
+                patient.setMember_exp(String.valueOf(rs.getBoolean("Member")).toUpperCase());
+                patient.setSubscription_exp(String.valueOf(rs.getBoolean("Subscription_Expired")).toUpperCase());
+                patient.setWeight_for_age(rs.getString("Weight_for_age"));
+                patient.setHeight_for_age(rs.getString("Height_for_age"));
+                patient.setTrack_id(task_id);
+                con.close();
+                return patient;
+            }
+          con.close();
+                rs.close();
+            return null;
+        } catch (Exception ex) {
+            ErrorDAO.Error_Add(new Error("Reception DAO", "Reception_Retrieve_Patient_Details", " Message: " + ex.getMessage(), date));
             return null;
         }
     }

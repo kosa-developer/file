@@ -697,11 +697,10 @@ public class LaboratoryDAO implements Serializable {
 
             con = Apache_Connectionpool.getInstance().getConnection();
             date = new Date();
-            String query = "SELECT f.Track_Id,f.Patient_Id,f.Patient_Name,f.Age,f.Gender,f.VisitReason,f.Problem,f.Triage_Category,d.DepartmentName,c.Locked,c.Staff_Id,f.Room_No,c.Record_Date,c.Urgency,c.Lab_Id,c.Forward_To FROM lab_pending c INNER JOIN frontdesk_tasks f ON c.Track_Id=f.Track_Id INNER JOIN users u ON c.From_Staff=u.UID INNER JOIN department d ON u.DID=d.DID Where (Select Count(*) From lab_tests_requests ltr Where ltr.Track_Id=f.Track_Id and Countersign_status='Pending')>=(Case When (Select Level From Users Where UID=?)='SUPERVISOR' Then 0 Else 1 End) and (Select Count(*) From lab_tests_requests ltr Where ltr.Track_Id=f.Track_Id and Countersign_status='Pending')<=(Case When (Select Level From Users Where UID=?)='SUPERVISOR' Then 0 Else 1000000 End) order by c.Urgency,c.Record_Date ASC";
+            String query = "SELECT f.Track_Id,f.Patient_Id,f.Patient_Name,TIMESTAMPDIFF(YEAR, f.DOB, CURDATE()) AS Age,f.Gender,f.VisitReason,f.Problem,f.Triage_Category,d.DepartmentName,c.Locked,c.Staff_Id,f.Room_No,c.Record_Date,c.Urgency,c.Lab_Id,c.Forward_To FROM lab_pending c INNER JOIN frontdesk_tasks f ON c.Track_Id=f.Track_Id INNER JOIN users u ON c.From_Staff=u.UID INNER JOIN department d ON u.DID=d.DID  order by c.Urgency,c.Record_Date ASC";
             // PreparedStatement stmt = con.prepareStatement("SELECT f.Track_Id,f.Patient_Id,f.Patient_Name,f.Age,f.Gender,f.VisitReason,f.Problem,f.Triage_Category,d.DepartmentName,c.Locked,c.Staff_Id,f.Room_No,c.Record_Date,c.Urgency,c.Lab_Id,c.Forward_To FROM lab_pending c INNER JOIN frontdesk_tasks f ON c.Track_Id=f.Track_Id INNER JOIN users u ON c.From_Staff=u.UID INNER JOIN department d ON u.DID=d.DID order by c.Urgency,c.Record_Date ASC");
             PreparedStatement stmt = con.prepareStatement(query);
-            stmt.setString(1, staff_id);
-            stmt.setString(2, staff_id);
+           
             ResultSet rs = stmt.executeQuery();
             List pending_list = new ArrayList();
             Integer color_code;
