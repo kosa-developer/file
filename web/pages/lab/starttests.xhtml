@@ -15,14 +15,16 @@
     </ui:define>
 
     <ui:define name="title">Laboratory - Start Test</ui:define>
-  
+
     <ui:define name="content">
         <h:form id="frmlab">  
             <p:dataTable id="selectedTests" value="#{laboratoryBean.tests_requested}" 
                          paginator="true" rows="8" paginatorPosition="bottom" var="testrequest" style="width: 100%"
                          selection="#{laboratoryBean.selected_lab_tests}" rowKey="#{testrequest.test_id}"
                          emptyMessage="#{laboratoryBean.sample_taken_msg}">
-               
+                <p:ajax event="rowSelect" process="@this"  />
+
+
                 <f:facet name="header">  
                     Requested Tests For Patient:#{laboratoryBean.patient_view.fullname}
                 </f:facet>
@@ -55,7 +57,7 @@
             </p:dataTable>
 
             <p:growl id="notification" sticky="true"/>
-            
+
         </h:form>
     </ui:define>
 

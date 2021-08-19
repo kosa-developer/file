@@ -633,16 +633,21 @@ public class LaboratoryBean
     */
     
         public void laboratory_samples_taken() {
+        
         try {
+                
 
             if (selected_lab_tests.length > 0) {
-                for (int i = 0; i < selected_lab_tests.length; i++) {
-                    if (LaboratoryDAO.Laboratory_Add_Test_Duration_Start(this.task_id, this.selected_lab_tests[i].getRequest_id())) {
-                        LaboratoryDAO.Laboratory_Update_Requested_Test_Status("Sample Taken", this.selected_lab_tests[i].getRequest_id());
-                    }
-                }
-                laboratory_get_requested_tests();
-                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Start Time For Test Samples Saved Successfully", "Success"));
+                       FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, ""+selected_lab_tests[0].getRequest_id(), "Failure"));
+         
+                
+////                for (int i = 0; i < selected_lab_tests.length; i++) {
+////                    if (LaboratoryDAO.Laboratory_Add_Test_Duration_Start(this.task_id, this.selected_lab_tests[i].getRequest_id())) {
+////                        LaboratoryDAO.Laboratory_Update_Requested_Test_Status("Sample Taken", this.selected_lab_tests[i].getRequest_id());
+////                    }
+////                }
+////                laboratory_get_requested_tests();
+//                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Start Time For Test Samples Saved Successfully", "Success"));
             } else {
                 FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "NO Samples Selected", "Failure"));
             }
@@ -662,6 +667,8 @@ public class LaboratoryBean
              */
         } catch (Exception ex) {
             System.err.println("Error in laboratory_samples_taken: " + ex.getMessage());
+                         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "" + ex.getMessage(), "Success"));
+ 
         }
 
     }
