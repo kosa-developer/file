@@ -10,78 +10,73 @@
             .ui-datatable .ui-datatable-footer {
                 text-align:left;
             }
+            button.ui-button {
+                margin-right: .5rem;
+            }
         </style>
     </ui:define>
 
     <ui:define name="title">Laboratory - Test Requests</ui:define>
 
     <ui:define name="content">
-        
-        <h:form id="frmSub" >  
+
+        <h:form id="frmSub" class="card" >  
             <h:outputLabel value="You have already submitted Patient's Results. Click the Back button to unlock the patient." id="hidde_countersign_message" rendered="#{laboratoryBean.hidecountersigned_message}"></h:outputLabel>
             <p:commandButton value="Back"  action="#{laboratoryBean.backButtonAfterResultSubmition(laboratoryBean.task_id)}" update=":frmSub:notification"/>
-            <p:panel rendered="#{laboratoryBean.hidecountersigned}" id="panel_main">
-            
-                <p:panel rendered="#{laboratoryBean.hidedata_normaluser}" id="pnlrequested" style="margin-bottom:5px;color: #40356E;height: 200px;background-color: #f7f7f7;">
-                    <p:dataTable id="selectedTests" value="#{laboratoryBean.tests_samples_taken}" 
-                                 paginator="true" rows="4" paginatorPosition="bottom" var="testrequest" style="width: 100%"
-                                 selection="#{laboratoryBean.selected_sample_taken}" rowKey="#{testrequest.request_id}"  selectionMode="single"
-                                 emptyMessage="There Are No Test Samples Submitted">
-                        <!--                             selection="# {laboratoryBean.selected_sample_taken}" rowKey="# {testrequest.test_id}"  selectionMode="single"
-                                                     emptyMessage="There Are No Test Samples Submitted">        -->
+            <p:panel  id="panel_main">
 
-                        <p:ajax event="rowSelect" process="@this" update=":frmSub:pnlexamination" />
+                <p:dataTable id="selectedTests" value="#{laboratoryBean.tests_samples_taken}" 
+                             paginator="true" rows="4" paginatorPosition="bottom" var="testrequest" style="width: 100%"
+                             selection="#{laboratoryBean.selected_sample_taken}" rowKey="#{testrequest.request_id}"  selectionMode="single"
+                             emptyMessage="There Are No Test Samples Submitted">
+                    <!--                             selection="# {laboratoryBean.selected_sample_taken}" rowKey="# {testrequest.test_id}"  selectionMode="single"
+                                                 emptyMessage="There Are No Test Samples Submitted">        -->
 
-                        <f:facet name="header">  
-                            Requested Tests For Patient:#{laboratoryBean.patient_view.fullname}
-                        </f:facet>
+                    <p:ajax event="rowSelect"  process="@this" update=":frmSub:pnlexamination" />
 
-                        <p:column headerText="Test Id" styleClass="tblcol1">  
-                            #{testrequest.test_id}
-                        </p:column>  
+                    <f:facet name="header">  
+                        Requested Tests For Patient:#{laboratoryBean.patient_view.fullname}
+                    </f:facet>
 
-                        <p:column headerText="Test Category" styleClass="tblcol6">  
-                            #{testrequest.category_desc}
-                        </p:column>  
+                    <p:column headerText="Test Id" styleClass="tblcol1">  
+                        #{testrequest.test_id}
+                    </p:column>  
 
-                        <p:column headerText="Test Name" styleClass="tblcol7">  
-                            #{testrequest.test_name}
-                        </p:column>  
+                    <p:column headerText="Test Category" styleClass="tblcol6">  
+                        #{testrequest.category_desc}
+                    </p:column>  
 
-                        <p:column headerText="Requested By" styleClass="tblcol6">  
-                            #{testrequest.requested_by}
-                        </p:column>  
+                    <p:column headerText="Test Name" styleClass="tblcol7">  
+                        #{testrequest.test_name}
+                    </p:column>  
 
-                    </p:dataTable>
-                </p:panel>
+                    <p:column headerText="Requested By" styleClass="tblcol6">  
+                        #{testrequest.requested_by}
+                    </p:column>  
 
-                <p:panel rendered="#{laboratoryBean.hidedata_normaluser}" id="pnlexamination" style="margin-bottom:5px;">
-                    <h:panelGrid columns="2"  id="request_testname_panel" >
-                        <h:outputLabel value="Request Test Name:" />
-                        <p:inputText value="#{laboratoryBean.selected_sample_taken.test_name}" disabled="true" style="width:400px;" required="true"/>
-                    </h:panelGrid>
-                    <h:panelGrid columns="4"  id="tests_panel">
-                        <h:panelGrid columns="2">
-                            <h:outputLabel value="Specific Test:" />
-                            <p:selectOneMenu id="specifictest" value="#{laboratoryBean.specific_test_id}" required="true">  
+                </p:dataTable>
+
+            </p:panel>
+
+            <p:panel rendered="#{laboratoryBean.hidedata_normaluser}" id="pnlexamination" >
+
+                <div class="ui-fluid p-formgrid p-grid p-col-12 p-md-12 p-formgroup" >
+                    <div class="ui-fluid p-formgrid card p-col-12 p-md-3 p-formgroup">
+                        <div class="p-field">
+                            <h:outputLabel value="Request Test Name: "   style="font-weight: bold"/>
+                            <p:inputText value="#{laboratoryBean.selected_sample_taken.test_name}" disabled="true" />
+                        </div>
+                        <div class="p-field ">
+                            <h:outputLabel value="Specific Test: "   style="font-weight: bold"/>
+                            <p:selectOneMenu  id="specifictest" value="#{laboratoryBean.specific_test_id}"  >  
                                 <f:selectItem itemLabel="Select Specific Test" itemValue="" />  
                                 <f:selectItems value="#{laboratoryBean.laboratory_get_specific_tests()}" var="spec" itemLabel="#{spec.specific_test}" itemValue="#{spec.specific_test_id}" />
-                                <p:ajax listener="#{laboratoryBean.laboratory_get_sub_tests()}" update="subtest"/>
+                                <p:ajax listener="#{laboratoryBean.tableLaboratory_Get_Sub_Tests(laboratoryBean.specific_test_id)}" update="subtest_id"/>
                             </p:selectOneMenu>
-                        </h:panelGrid>
-                        <h:panelGrid columns="2" style="margin-left: 30%;">
-                            <h:outputLabel value="Sub Test:" />
-                            <p:selectOneMenu id="subtest" value="#{laboratoryBean.sub_test_id}" required="true">  
-                                <f:selectItem itemLabel="Select Sub Test" itemValue="" />  
-                                <f:selectItems value="#{laboratoryBean.sub_tests}" var="sub" itemLabel="#{sub.sub_test}" itemValue="#{sub.sub_test_id}" />  
-                                <p:ajax listener="#{laboratoryBean.laboratory_get_expected_results()}" update="sampe_testresult_panel,result_comment_panel,result_comment_panel"/>
-                            </p:selectOneMenu>
-                        </h:panelGrid>
-                    </h:panelGrid>
-                    <h:panelGrid columns="4"  id="sampe_testresult_panel">
-                        <h:panelGrid columns="2">
+                        </div>
+                        <div  class="p-field ">
                             <h:outputLabel value="Sample Type:" />
-                            <p:selectOneMenu value="#{laboratoryBean.test_sample}" required="true"> 
+                            <p:selectOneMenu value="#{laboratoryBean.test_sample}" > 
                                 <f:selectItem itemLabel="Select Sample" itemValue="" />  
                                 <f:selectItem itemLabel="Urine" itemValue="Urine" />
                                 <f:selectItem itemLabel="Sputum" itemValue="Sputum" />
@@ -100,261 +95,176 @@
                                 <f:selectItem itemLabel="Nasopharyngeal Swab" itemValue="Nasopharyngeal Swab" />
                                 <f:selectItem itemLabel="Oral Swab" itemValue="Oral Swab" />
                             </p:selectOneMenu>
-                        </h:panelGrid> 
-                        <h:panelGrid columns="2" style="margin-left: 30%;">
-                            <h:outputLabel value="Tests Result:" rendered="#{laboratoryBean.result_select}" id="test_result"/>
-                            <p:selectOneMenu id="testresult" value="#{laboratoryBean.expected_result_id}" rendered="#{laboratoryBean.result_select}" required="true">  
-                                <f:selectItem itemLabel="Select Tests Result" itemValue="" />  
-                                <f:selectItems value="#{laboratoryBean.expected_results}" var="exp" itemLabel="#{exp.expected_result}" itemValue="#{exp.expected_result_id}" />  
-                            </p:selectOneMenu>
-                        </h:panelGrid>
-                    </h:panelGrid>
-                    <h:panelGrid columns="4"  id="result_comment_panel">
-                        <h:panelGrid columns="2">
-                            <h:outputLabel value="Results:"  rendered="#{laboratoryBean.result_entry}"/>
-                            <h:outputLabel value="Other Results:" id="resultz2" rendered="#{laboratoryBean.result_select}"/>
-                            <h:panelGrid columns="2" id="result_pannel">
-                                <p:inputTextarea value="#{laboratoryBean.requested_test_result}" autoResize="false" scrollHeight="400" style="width:400px;" rendered="#{laboratoryBean.result_select}"/>
-                                <p:spinner size="4" value="#{laboratoryBean.numerical_result}" stepFactor="0.01" rendered="#{laboratoryBean.result_entry}" required="true"/>
-                                <h:outputLabel value="#{laboratoryBean.expected_result_range}" rendered="#{laboratoryBean.result_entry}"/>
-                            </h:panelGrid> 
-                        </h:panelGrid>
-                        <h:panelGrid columns="2">
-                            <h:outputLabel value="Comment:" />
-                            <p:inputTextarea value="#{laboratoryBean.test_comment}" autoResize="false" scrollHeight="400" style="width:400px;"/>
-                        </h:panelGrid>
-                    </h:panelGrid>
-                    <h:panelGrid columns="1">
+                        </div>
+                    </div>
+                    <div class="ui-fluid p-formgrid p-grid card p-col-12 p-md-9 p-formgroup">
+                          <p:messages id="notification"/>
+                        <p:dataTable  id="subtest_id" value="#{laboratoryBean.tablesubtest}" 
+                                      size="small" var="test"
+                                      emptyMessage="No subtests" >
+                            <p:column headerText="Sub Test" > 
+                                #{test.sub_test}
 
-                        <p:commandButton id="add" value="Add Test Result" style="width: 200px;" action="#{laboratoryBean.laboratory_add_test_result(appMenu.userid)}" update="pnlresults,pnlrequested,pnlexamination,notification"/>
-                        <p:spacer/>
-                    </h:panelGrid>
-                </p:panel>
-                <p:commandButton  value="view all results on one sheet" style="float:right" onclick="PF('view_data_on_asheet').show();" update="main_panel"></p:commandButton>
+                            </p:column>
+                            <p:column headerText="Tests Result:" > 
+                                <p:selectOneMenu  value="#{test.expected_result_id}" id="testresult" rendered="#{laboratoryBean.result_entry(test.sub_test_id,'result_select')}"  style="width:90%;" >  
+                                    <f:selectItem itemLabel="Select Tests Result" itemValue="" />  
+                                    <f:selectItems value="#{laboratoryBean.laboratory_get_expected_results(test.sub_test_id)}" var="exp" itemLabel="#{exp.expected_result}" itemValue="#{exp.expected_result_id}" />  
+                                </p:selectOneMenu>
+                                <p:spinner size="4" value="#{test.numerical_result}" rendered="#{laboratoryBean.result_entry(test.sub_test_id,'result_entry')}" id="resultspinner" stepFactor="0.01"  />
+                                <h:outputLabel value="#{laboratoryBean.expected_result_range(test.sub_test_id)}" id="resultlable"/>
+                            </p:column>
+                            <p:column headerText="Other Results:" > 
+                                <p:inputTextarea value="#{test.requested_test_result}" id="resulttxtarea" autoResize="false" scrollHeight="400" />
+                            </p:column>
+                            <p:column headerText="Comment:" > 
+                                <p:inputTextarea value="#{test.test_comment}" autoResize="false" scrollHeight="400" />
+                            </p:column>
+                            <f:facet name="footer">
+                                <p:commandButton action="#{laboratoryBean.laboratory_add_test_result(appMenu.userid)}"  id="add" style="width: 10rem; font-size: smaller" value="Add Test Result"  update=":frmSub:pnlresults,:frmSub:notification"/>
 
-                <p:panel id="pnlresults" style="margin-bottom:5px;color: #40356E;background-color: #f7f7f7;">
-                    <p:dataTable id="expectedTbl" value="#{laboratoryBean.laboratory_get_performed_tests()}" 
-                                 paginator="true" rows="8" paginatorPosition="bottom" var="pres"
-                                 scrollable="true" 
-                                 emptyMessage="No Results Have Been Added " >
-
-                        <f:facet name="header">  
-                            Test Results From Submitted Test Samples
-                        </f:facet>
-
-                        <p:column headerText="Result Id" >  
-                            #{pres.result_id}  
-                        </p:column>
-                        <p:column headerText="Sample Type" >  
-                            #{pres.sample_type}  
-                        </p:column>
-
-                        <p:column headerText="Test and its components" >  
-                            #{pres.general_test}
-                        </p:column>
-
-                        <p:column headerText="Results" >  
-                            #{pres.general_results}#{laboratoryBean.result_units(pres.sub_test_id,pres.other_result)} #{laboratoryBean.expected_result_range(pres.sub_test_id)} #{(pres.comment.equals(''))?'':pres.comment_blacket}
-                        </p:column>
-                        <p:column headerText="Timing" >  
-                            #{pres.start_time}  -  #{pres.end_time}  
-                        </p:column>
-                        <p:column headerText="action">  
-                            <p:commandButton rendered="#{laboratoryBean.hidedata_supervisor}" value="Review" action="#{laboratoryBean.reviewResults(pres.test_id, pres.result_id, pres.specific_test_id,pres.sub_test_id,pres.expected_result_id,pres.specific_test,pres.sub_test,pres.expected_result,pres.other_result,pres.comment,pres.sample_type)}" onclick="PF('view_model').show();" update=":frmSub:model_tests_panel,:frmSub:sampe_testresult_panel_,:frmSub:result_comment_panel_"/>
-
-                            <p:commandButton value="Delete" rendered="#{laboratoryBean.hidedata_normaluser}" action="#{laboratoryBean.laboratory_delete_result(pres.result_id)}" update=":frmSub:pnlresults,:frmSub:sub_test_,:frmSub:notification"/>
-                            <h:outputLabel value="Reviewed" rendered="#{pres.rendering_edit}" />
-
-                        </p:column> 
-                        <f:facet name="footer">  
-                        </f:facet>
-
-                    </p:dataTable>
+                            </f:facet>
+                        </p:dataTable>
 
 
-                    <p:dialog  widgetVar="view_data_on_asheet" id="gg" position="right"  width="calc(75%)" height="600">
-                        <!--<p:commandButton value="print" style="float: right"></p:commandButton>-->
-                        <p:panel id="main_panel" >
-
-                            <h:panelGrid columns="2"  >
-                                 <h:panelGrid width="900" columns="1" style="text-align: center; font-family: sans-serif; font-size: 23px; font-weight: bolder"><p:outputLabel value="C.O.U BWINDI COMMUNITY HOSPITAL"></p:outputLabel>
-                                    <p:outputLabel value="LABORATORY REPORT FORM" ></p:outputLabel>
-                                </h:panelGrid>
-                            </h:panelGrid>
-                            <br/>
-                            <h:panelGrid columns="3" width="900"  style="text-align: left; font-family: sans-serif; font-size: 13px; font-weight: normal">
-                                <h:panelGrid columns="2">
-                                    <p:outputLabel style="font-weight: bold" value="Name:"></p:outputLabel>
-                                    <p:outputLabel style="text-decoration: underline;text-decoration-style: dotted" value="#{consultantBean.patient_view.fullname}" ></p:outputLabel>
-                                </h:panelGrid>
-                                <h:panelGrid columns="2">
-                                    <p:outputLabel style="font-weight: bold" value="Date:"></p:outputLabel>
-                                    <p:outputLabel style="text-decoration: underline;text-decoration-style: dotted" value="#{consultantBean.resultPresentationDate}" ></p:outputLabel>
-                                </h:panelGrid>
-                                <h:panelGrid columns="2">
-                                    <p:outputLabel style="font-weight: bold" value="OPD No:"></p:outputLabel>
-                                    <p:outputLabel style="text-decoration: underline;text-decoration-style: dotted" value="" ></p:outputLabel>
-                                </h:panelGrid>
+                    </div>
 
 
-                                <h:panelGrid columns="2">
-                                    <p:outputLabel style="font-weight: bold" value="Age:"></p:outputLabel>
-                                    <p:outputLabel style="text-decoration: underline;text-decoration-style: dotted" value="#{laboratoryBean.patient_view.fullname}" ></p:outputLabel>
-                                </h:panelGrid>
-                                <h:panelGrid columns="2">
-                                    <p:outputLabel style="font-weight: bold" value="Gender:"></p:outputLabel>
-                                    <p:outputLabel style="text-decoration: underline;text-decoration-style: dotted" value="#{laboratoryBean.patient_view.memberGender}" ></p:outputLabel>
-                                </h:panelGrid>
-                                <h:panelGrid columns="2">
-                                    <p:outputLabel style="font-weight: bold" value="Address:"></p:outputLabel>
-                                    <p:outputLabel style="text-decoration: underline;text-decoration-style: dotted" value="#{laboratoryBean.patient_view.subcounty},  #{laboratoryBean.patient_view.parish} , #{laboratoryBean.patient_view.village}" ></p:outputLabel>
-                                </h:panelGrid>
-                            </h:panelGrid>
-                            <h:panelGrid columns="2" width="900" style="text-align: left; font-family: sans-serif; font-size: 13px; font-weight: normal">
-                                <h:panelGrid columns="2">
-                                    <p:outputLabel style="font-weight: bold" value="Ward/Clinic:"></p:outputLabel>
-                                    <p:outputLabel style="text-decoration: underline;text-decoration-style: dotted" value="OPD" ></p:outputLabel>
-                                </h:panelGrid>
-                                <h:panelGrid columns="1">
-                                    <p:outputLabel style="font-weight: bold" value="Clinician:.................................................................................................................."></p:outputLabel>
-                                </h:panelGrid>
-
-                            </h:panelGrid>
-
-                            <br/>
-
-                            <h:panelGrid columns="1"   style="text-align: left; font-family: sans-serif; font-size: 13px; font-weight: normal; width: 100%;">
-
-                                <p:dataTable var="resultdata" value="#{laboratoryBean.laboratory_get_performed_tests()}">
-                                    <p:column headerText="Sample details:" styleClass="tblcol3">  
-                                        #{resultdata.sample_type}
-                                    </p:column>
-                                    <p:column headerText="Test and its components:" styleClass="tblcol3">  
-                                        #{resultdata.general_test}  
-                                    </p:column>
-                                    <p:column headerText="Results:" styleClass="tblcol4">  
-                                        #{resultdata.general_results}  #{laboratoryBean.result_units(resultdata.sub_test_id,resultdata.other_result)} 
-                                    </p:column>
-                                    <p:column headerText="Comments" styleClass="tblcol4">  
-                                        #{resultdata.comment}  
-                                    </p:column>
-
-                                    <p:column headerText="Reference ranges:" styleClass="tblcol3">  
-                                        #{laboratoryBean.expected_result_range(resultdata.sub_test_id)}
-                                    </p:column>
-                                </p:dataTable>
-                            </h:panelGrid>
-                            <br/><br/>
-                            <h:panelGrid columns="2" width="900" style="text-align: left; font-family: sans-serif; font-size: 13px; font-weight: normal">
-                                <p:outputLabel style="font-weight: normal" value="Analyst signature:......................................................................................"></p:outputLabel>
-                                <p:outputLabel style="font-weight: normal" value="Date:.................................."></p:outputLabel>
-                                <p:outputLabel style="font-weight: normal" value="Result approved by:......................................................................................."></p:outputLabel>
-                                <p:outputLabel style="font-weight: normal" value="Date:....................................."></p:outputLabel>
-
-                            </h:panelGrid>
-                            <br/><br/>
-                            <h:panelGrid columns="1" style="float: top; text-align: left; font-family: sans-serif; font-size: 13px; font-weight: normal;width: 100%;">
-                                <p:outputLabel style="font-weight: normal" value="Note: *indicates test can only be requested by a Medical officer"></p:outputLabel>
-                                <p:outputLabel style="font-style: italic; margin-left:15%;" value="This form Must be completely filled by the requested clinician"></p:outputLabel>
-
-                            </h:panelGrid>
-
-                        </p:panel>
-                        <p:commandButton value="cancel" onclick="PF('view_data_on_asheet').hide()" style="float: right"></p:commandButton>
-                    </p:dialog>
-                </p:panel>
-
-                <p:dialog header="Edit " widgetVar="view_model" id="data_model" width="1200" rendered="#{laboratoryBean.hidedata_supervisor}">
-
-                    <h:panelGrid columns="4"  id="model_tests_panel" border="1" width="1100">
-                        <h:panelGrid columns="2" >
-                            <h:outputLabel value="Specific Test:" />
-                            <p:selectOneMenu  value="#{laboratoryBean.confirm_specific_test_id}">  
-                                <f:selectItem itemLabel="Select Specific Test" itemValue="" />  
-                                <f:selectItems value="#{laboratoryBean.specific_tests}" var="conf_spec"  itemLabel="#{conf_spec.specific_test}" itemValue="#{conf_spec.specific_test_id}" />  
-                                <p:ajax listener="#{laboratoryBean.retrieve_confirm_subtest(laboratoryBean.confirm_specific_test_id)}" update="sub_test_,sampe_testresult_panel_,result_comment_panel_"/>
-                            </p:selectOneMenu>
-                        </h:panelGrid>
-                        <h:panelGrid columns="2" >
-                            <h:outputLabel value="Sub Test:" />
-                            <p:selectOneMenu id="sub_test_" value="#{laboratoryBean.confirm_sub_test_id}" >  
-                                <f:selectItem itemLabel="Select Sub Test" itemValue="" />  
-                                <f:selectItems value="#{laboratoryBean.sub_tests}" var="sub_" itemLabel="#{sub_.sub_test}" itemValue="#{sub_.sub_test_id}" />  
-                                <p:ajax  listener="#{laboratoryBean.receive_confirm_expected_results(laboratoryBean.confirm_sub_test_id)}" update="sampe_testresult_panel_,result_comment_panel_"/>
-                            </p:selectOneMenu>
-                        </h:panelGrid>
-                    </h:panelGrid>
-
-                    <h:panelGrid columns="2"  id="sampe_testresult_panel_" border="1" width="1100">
-                        <h:panelGrid columns="2">
-                            <h:outputLabel value="Sample Type:" />
-                            <p:selectOneMenu value="#{laboratoryBean.confirm_sample_type}" > 
-                                <f:selectItem itemLabel="Select Sample" itemValue="" />  
-                                <f:selectItem itemLabel="Urine" itemValue="Urine"  />
-                                <f:selectItem itemLabel="Sputum" itemValue="Sputum" />
-                                <f:selectItem itemLabel="Stool" itemValue="Stool" />
-                                <f:selectItem itemLabel="CSF" itemValue="CSF"  />
-                                <f:selectItem itemLabel="Throat Swab" itemValue="Throat Swab"  />
-                                <f:selectItem itemLabel="Mouth Swab" itemValue="Mouth Swab" />
-                                <f:selectItem itemLabel="High Vaginal" itemValue="High Vaginal" />
-                                <f:selectItem itemLabel="Pus Swab" itemValue="Pus Swab" />
-                                <f:selectItem itemLabel="Urethral Swab" itemValue="Urethral Swab" />
-                                <f:selectItem itemLabel="Whole Blood" itemValue="Whole Blood" />
-                                <f:selectItem itemLabel="Eye Swab" itemValue="Eye Swab" />
-                                <f:selectItem itemLabel="Serum" itemValue="Serum" />
-                                <f:selectItem itemLabel="Plasma" itemValue="Plasma" />
-                                <f:selectItem itemLabel="Saliva" itemValue="Saliva" />
-                                <f:selectItem itemLabel="Nasopharyngeal Swab" itemValue="Nasopharyngeal Swab" />
-                                <f:selectItem itemLabel="Oral Swab" itemValue="Oral Swab" />
-                            </p:selectOneMenu>
-                        </h:panelGrid> 
-                        <h:panelGrid columns="2" rendered="#{laboratoryBean.result_select}" >
-                            <h:outputLabel value="Tests Result:" rendered="true" id="test_result_confirm"/>
-                            <p:selectOneMenu  value="#{laboratoryBean.confirm_expected_result_id}" >  
-                                <f:selectItem itemLabel="Select Tests Result" itemValue="" />  
-                                <f:selectItems value="#{laboratoryBean.expected_results}" var="exp_" itemLabel="#{exp_.expected_result}" itemValue="#{exp_.expected_result_id}" />  
-                            </p:selectOneMenu>
-                        </h:panelGrid>
-                    </h:panelGrid>
-
-                    <h:panelGrid columns="3"  id="result_comment_panel_" border="1"  width="1100">
-                        <h:panelGrid columns="2" rendered="#{laboratoryBean.result_select}">
-                            <h:outputLabel value="Other Results:" id="resultz2_" />
-
-                            <p:inputTextarea value="#{laboratoryBean.confirm_otherResults}"  autoResize="false" scrollHeight="500" style="width:220px;"/>
-
-                        </h:panelGrid>
-                        <h:panelGrid columns="3"  rendered="#{laboratoryBean.result_entry}">
-                            <h:outputLabel value="Results:" />
-                            <p:spinner size="4" value="#{laboratoryBean.confirm_otherResults}" stepFactor="0.01" />
-                            <h:outputLabel value="#{laboratoryBean.expected_result_range}" id="labe_range"/>
-
-                        </h:panelGrid>
-                        <h:panelGrid columns="2">
-                            <h:outputLabel value="Comment:" />
-                            <p:inputTextarea value="#{laboratoryBean.confirm_comments}" autoResize="false" scrollHeight="500" style="width:220px;"/>
-                        </h:panelGrid>
-                    </h:panelGrid>
-
-                    <p:commandButton value="Accept" action="#{laboratoryBean.editTestResults(usersBean.uid)}" style="float:right;" update=":frmSub:notification,:frmSub:pnlresults" onclick="PF('view_model').hide()"/>
-
-
-                </p:dialog> 
-
-              
-
+                </div>
             </p:panel>
-            <p:growl id="notification" sticky="true"/>
+
+            <p:panel id="pnlresults" style="margin-bottom:5px;color: #40356E;background-color: #f7f7f7;">
+                <p:dataTable  id="expectedTbl" value="#{laboratoryBean.laboratory_get_performed_tests()}" 
+                              paginator="true" rows="5" size="small" paginatorPosition="bottom" var="pres"
+                              scrollable="true" 
+                              emptyMessage="No Results Have Been Added " >
+
+                    <f:facet name="header">  
+                        Test Results From Submitted Test Samples
+                        <p:commandButton value="View results on a sheet" type="button" icon="pi pi-external-link" onclick="PF('dlg3').show()"/>
+                    </f:facet>
+
+                    <p:column headerText="Result Id" >  
+                        #{pres.result_id}  
+                    </p:column>
+                    <p:column headerText="Sample Type" >  
+                        #{pres.sample_type}  
+                    </p:column>
+
+                    <p:column headerText="Test and its components" >  
+                        #{pres.general_test}
+                    </p:column>
+
+                    <p:column headerText="Results" >  
+                        #{pres.general_results}#{laboratoryBean.result_units(pres.sub_test_id,pres.other_result)} #{laboratoryBean.expected_result_range(pres.sub_test_id)} #{pres.comment}
+                    </p:column>
+                    <p:column headerText="Date" >  
+                        #{pres.resultdate}
+                    </p:column>
+                    <p:column headerText="action">  
+
+                        <p:commandButton value="Delete"  action="#{laboratoryBean.laboratory_delete_result(pres.result_id)}" update=":frmSub:pnlresults,:frmSub:notification"  style="width: 5rem; font-size: smaller"/>
+
+                    </p:column> 
+                    <f:facet name="footer">  
+                        <p:commandButton styleClass="ui-button-warning" action="#{laboratoryBean.backButtonAfterResultSubmition(laboratoryBean.task_id)}" value="cancle" update=":frmSub:notification"/>
+                        <p:commandButton  update=":frmSub:notification" action="#{laboratoryBean.exitlab(laboratoryBean.task_id,appMenu.userid)}" value="Exit Patient"  />
+                        <p:commandButton styleClass="ui-button-secondary" update=":frmSub:notification" action="#{laboratoryBean.foward_to_consultation(laboratoryBean.task_id,appMenu.userid)}" value="Foward to Consultant"  icon="pi pi-forward" iconPos="right" />
+                    </f:facet>
+
+                </p:dataTable>
+
+                <p:dialog  widgetVar="dlg3" height="500"  width="60%" showEffect="fade">
+                    <f:facet name="footer">
+                        <p:commandButton type="button" value="Cancle" onclick="PF('dlg3').hide()" style="width: 5rem; font-size: smaller" />
+                        <p:commandButton value="Print" type="button" icon="pi pi-print" style="width: 5rem; font-size: smaller">
+                            <p:printer target="main_panel"/>
+                        </p:commandButton>
+                    </f:facet>
+                    <p:panel id="main_panel" >
+                        <h:panelGrid width="100%" columns="1" style="text-align: center; font-family: sans-serif; font-size: 23px; font-weight: bolder">
+                            <p:outputLabel value="LABORATORY REPORT FORM" ></p:outputLabel>
+                        </h:panelGrid>
+                        <h:panelGrid columns="3" width="100%"  style="text-align: left; font-family: sans-serif; font-size: 13px; font-weight: normal">
+                            <h:panelGrid columns="2">
+                                <p:outputLabel style="font-weight: bold" value="Name:"></p:outputLabel>
+                                <p:outputLabel style="text-decoration: underline;text-decoration-style: dotted" value="#{laboratoryBean.patient_view.fullname}" ></p:outputLabel>
+                            </h:panelGrid>
+
+                            <h:panelGrid columns="2">
+                                <p:outputLabel style="font-weight: bold" value="OPD No:"></p:outputLabel>
+                                <p:outputLabel style="text-decoration: underline;text-decoration-style: dotted" value="#{laboratoryBean.patient_view.memberId}" ></p:outputLabel>
+                            </h:panelGrid>
+
+
+                            <h:panelGrid columns="2">
+                                <p:outputLabel style="font-weight: bold" value="Age:"></p:outputLabel>
+                                <p:outputLabel style="text-decoration: underline;text-decoration-style: dotted" value="#{laboratoryBean.patient_view.age}" ></p:outputLabel>
+                            </h:panelGrid>
+                            <h:panelGrid columns="2">
+                                <p:outputLabel style="font-weight: bold" value="Gender:"></p:outputLabel>
+                                <p:outputLabel style="text-decoration: underline;text-decoration-style: dotted" value="#{laboratoryBean.patient_view.memberGender}" ></p:outputLabel>
+                            </h:panelGrid>
+                            <h:panelGrid columns="2">
+                                <p:outputLabel style="font-weight: bold" value="Address:"></p:outputLabel>
+                                <p:outputLabel style="text-decoration: underline;text-decoration-style: dotted" value="#{laboratoryBean.patient_view.subcounty},  #{laboratoryBean.patient_view.parish} , #{laboratoryBean.patient_view.village}" ></p:outputLabel>
+                            </h:panelGrid>
+                        </h:panelGrid>
+                        <h:panelGrid columns="2" width="100%" style="text-align: left; font-family: sans-serif; font-size: 13px; font-weight: normal">
+                            <h:panelGrid columns="2">
+                                <p:outputLabel style="font-weight: bold" value="Ward/Clinic:"></p:outputLabel>
+                                <p:outputLabel style="text-decoration: underline;text-decoration-style: dotted" value="OPD" ></p:outputLabel>
+                            </h:panelGrid>
+                            <h:panelGrid columns="1">
+                                <p:outputLabel style="font-weight: bold" value="Clinician:.................................................................................................................."></p:outputLabel>
+                            </h:panelGrid>
+
+                        </h:panelGrid>
+
+                        <br/>
+                      
+                        <h:panelGrid columns="1"   style="text-align: left; font-family: sans-serif; font-size: smaller; font-wpeight: normal; width: 100%;">
+
+                            <p:dataTable var="resultdata"   value="#{laboratoryBean.laboratory_get_performed_tests()}">
+                                <p:column headerText="Sample details:" styleClass="tblcol3">  
+                                    #{resultdata.sample_type}
+                                </p:column>
+                                <p:column headerText="Test and its components:" styleClass="tblcol3">  
+                                    #{resultdata.general_test}  
+                                </p:column>
+                                <p:column headerText="Results:" styleClass="tblcol4">  
+                                    #{resultdata.general_results}  #{laboratoryBean.result_units(resultdata.sub_test_id,resultdata.other_result)} 
+                                </p:column>
+                                <p:column headerText="Comments" styleClass="tblcol4">  
+                                    #{resultdata.comment}  
+                                </p:column>
+
+                                <p:column headerText="Reference ranges:" styleClass="tblcol3">  
+                                    #{laboratoryBean.expected_result_range(resultdata.sub_test_id)}
+                                </p:column>
+                            </p:dataTable>
+                        </h:panelGrid>
+                        <h:panelGrid columns="2" width="100%" style="text-align: left; font-family: sans-serif; font-size: 13px; font-weight: normal">
+                            <p:outputLabel style="font-weight: normal" value="Analyst signature:......................................................................................"></p:outputLabel>
+                            <p:outputLabel style="font-weight: normal" value="Date:.................................."></p:outputLabel>
+                            <p:outputLabel style="font-weight: normal" value="Result approved by:......................................................................................."></p:outputLabel>
+                            <p:outputLabel style="font-weight: normal" value="Date:....................................."></p:outputLabel>
+
+                        </h:panelGrid>
+                        <h:panelGrid columns="2" style="float: top; text-align: left; font-family: sans-serif; font-size: smaller; font-weight: normal;width: 100%;">
+                            <p:outputLabel style="font-weight: normal" value="Note: *indicates test can only be requested by a Medical officer"/>
+                            <p:outputLabel style="font-style: italic; " value="This form Must be completely filled by the requested clinician"/>
+
+                        </h:panelGrid>
+
+                    </p:panel>
+
+                </p:dialog>
+            </p:panel>
+
+
+
 
         </h:form>
-  <p:commandButton id="BackBtn" value="Back To Sample Submission" icon="ui-icon-search" rendered="#{laboratoryBean.hidedata_normaluser}" update=":frmSub:selectedTests,:frmSub:notification" action="#{laboratoryBean.laboratory_navigate_to('starttests')}"/>  
-                <!--                                         update=":frmSub:selectedTests,:frmSub:notification" action="# {laboratoryBean.laboratory_navigate_to('starttest')}"/>  -->
-                <p:spacer width="20"/>
-                <p:commandButton id="ConfirmBtn" value="Countersign Results and Submit" rendered="#{laboratoryBean.hidedata_supervisor}" icon="ui-icon-search" action="#{laboratoryBean.laboratory_submit_test_results(appMenu.userid)}" update=":frmSub:notification"/>
-                <p:commandButton  value="Submit Results for Countersigning" rendered="#{laboratoryBean.hidedata_normaluser}" icon="ui-icon-search" action="#{laboratoryBean.submitProvisionaltests(laboratoryBean.task_id)}" update=":frmSub:notification,:frmSub:panel_main,:frmSub:hidde_countersign_message"/>
-                <p:spacer width="20"/>
-                <p:commandButton value="unlock client" action="#{laboratoryBean.laboratory_unlock_task()}"/>
-
-   
     </ui:define>
 </ui:composition>

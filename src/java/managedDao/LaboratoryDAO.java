@@ -21,6 +21,7 @@ import managedModal.SpecificTest;
 import managedModal.SubTest;
 import managedModal.ExpectedResult;
 import managedModal.LabTestResults;
+import managedModal.testresults;
 
 public class LaboratoryDAO implements Serializable {
 
@@ -374,15 +375,15 @@ public class LaboratoryDAO implements Serializable {
             List tests_list = new ArrayList();
 
             while (rs.next()) {
-                test = new LabTest();
-
-                test.setRequest_id(rs.getInt("Request_Id"));
-                test.setTest_id(rs.getInt("Test_Id"));
-                test.setCategory_desc(rs.getString("category"));
-                test.setTest_name(rs.getString("test_name"));
-                test.setPrice(rs.getInt("price"));
-                test.setRequested_by(rs.getString("FullName"));
-
+                test = new LabTest(rs.getInt("Request_Id"), rs.getInt("test_id"), rs.getString("category"), rs.getString("test_name"), rs.getInt("price"), rs.getString("FullName"));
+//
+//                test.setRequest_id(rs.getInt("Request_Id"));
+//                test.setTest_id(rs.getInt("test_id"));
+//                test.setCategory_desc(rs.getString("category"));
+//                test.setTest_name(rs.getString("test_name"));
+//                test.setPrice(rs.getInt("price"));
+//                test.setRequested_by(rs.getString("FullName"));
+//               
                 tests_list.add(test);
             }
             con.close();
@@ -521,7 +522,9 @@ public class LaboratoryDAO implements Serializable {
 //            PreparedStatement stmt = con.prepareStatement("SELECT l.Request_Id,tc.category,t.test_id,t.test_name,u.FullName FROM lab_tests_requests l INNER JOIN test_names t ON t.test_id=l.test_name_id INNER JOIN test_categories tc ON tc.category_id=t.category_id INNER JOIN users u ON l.Requested_By=u.UID WHERE l.Status='Sample Taken' AND l.Track_Id=? order by l.Request_Id ASC");
 //            PreparedStatement stmt = con.prepareStatement("SELECT l.Request_Id,tc.category,t.test_id,t.test_name,u.FullName FROM lab_tests_requests l INNER JOIN test_names t ON t.test_id=l.test_name_id INNER JOIN test_categories tc ON tc.category_id=t.category_id INNER JOIN users u ON l.Requested_By=u.UID WHERE (l.Status='Sample Taken' or l.Status='Completed') AND l.Track_Id=? order by l.Request_Id ASC");
 //            PreparedStatement stmt = con.prepareStatement("SELECT l.Request_Id,tc.category,t.test_id,t.test_name,u.FullName FROM lab_tests_requests l INNER JOIN test_names t ON t.test_id=l.test_name_id INNER JOIN test_categories tc ON tc.category_id=t.category_id INNER JOIN users u ON l.Requested_By=u.UID WHERE (l.Status='Sample Taken' or l.Status='Completed') AND l.Track_Id=? AND NOT EXISTS (Select Record_Date From lab_tasks lt Where lt.Track_Id=l.Track_Id and lt.Record_Date>l.Request_Time) order by l.Request_Id ASC");
-            PreparedStatement stmt = con.prepareStatement("SELECT l.Request_Id,tc.category,t.test_id,t.test_name,u.FullName FROM lab_tests_requests l INNER JOIN test_names t ON t.test_id=l.test_name_id INNER JOIN test_categories tc ON tc.category_id=t.category_id INNER JOIN users u ON l.Requested_By=u.UID WHERE (l.Status='Sample Taken' or l.Status='Completed') AND l.Track_Id=? AND NOT EXISTS (Select Record_Date From lab_tasks lt Where lt.Track_Id=l.Track_Id and lt.Record_Date>l.Request_Time) AND NOT EXISTS (Select trans_id From ward_transactions wt Where wt.trans_id=l.Trans_Id And trans_name='Laboratory Test Done On Ward') order by l.Request_Id ASC");
+//            PreparedStatement stmt = con.prepareStatement("SELECT l.Request_Id,tc.category,t.test_id,t.test_name,u.FullName FROM lab_tests_requests l INNER JOIN test_names t ON t.test_id=l.test_name_id INNER JOIN test_categories tc ON tc.category_id=t.category_id INNER JOIN users u ON l.Requested_By=u.UID WHERE (l.Status='Sample Taken' or l.Status='Completed') AND l.Track_Id=? AND NOT EXISTS (Select Record_Date From lab_tasks lt Where lt.Track_Id=l.Track_Id and lt.Record_Date>l.Request_Time) AND NOT EXISTS (Select trans_id From ward_transactions wt Where wt.trans_id=l.Trans_Id And trans_name='Laboratory Test Done On Ward') order by l.Request_Id ASC");
+//          PreparedStatement stmt = con.prepareStatement("SELECT l.Request_Id,tc.category,t.test_id,t.test_name,u.FullName FROM lab_tests_requests l INNER JOIN test_names t ON t.test_id=l.test_name_id INNER JOIN test_categories tc ON tc.category_id=t.category_id INNER JOIN users u ON l.Requested_By=u.UID WHERE (l.Status='Pending' or l.Status='Completed') order by l.Request_Id ASC");
+            PreparedStatement stmt = con.prepareStatement("SELECT l.price,l.Request_Id,tc.category,t.test_id,t.test_name,u.FullName FROM lab_tests_requests l INNER JOIN test_names t ON t.test_id=l.test_name_id INNER JOIN test_categories tc ON tc.category_id=t.category_id INNER JOIN users u ON l.Requested_By=u.UID WHERE l.`Status`='Pending' AND l.Track_Id=? order by l.Request_Id ASC");
             stmt.setString(1, task_id);
 
             ResultSet rs = stmt.executeQuery();
@@ -531,7 +534,8 @@ public class LaboratoryDAO implements Serializable {
                 test = new LabTest();
 
                 test.setRequest_id(rs.getInt("Request_Id"));
-                test.setTest_id(rs.getInt("Test_Id"));
+                test.setTest_id(rs.getInt("test_id"));
+                test.setPrice(rs.getInt("price"));
                 test.setCategory_desc(rs.getString("category"));
                 test.setTest_name(rs.getString("test_name"));
                 test.setRequested_by(rs.getString("FullName"));
@@ -557,9 +561,19 @@ public class LaboratoryDAO implements Serializable {
 
             con = Apache_Connectionpool.getInstance().getConnection();
             date = new Date();
-            String query = "SELECT q.Request_Id,t.test_name,t.test_id, case when l.Status=1 Then (select sp.specific_test from specific_tests sp where sp.specific_test_id=l.specific_test_id) else (select sp.specific_test from specific_tests sp where sp.specific_test_id=l.specific_test_id_c) End As specific_test_name, case when l.Status=1 Then (select sp.specific_test_id from specific_tests sp where sp.specific_test_id=l.specific_test_id) else (select sp.specific_test_id from specific_tests sp where sp.specific_test_id=l.specific_test_id_c) End As specific_test_id,case when l.Status=1 then (select s.sub_test from sub_tests s where s.sub_test_id=l.sub_test_id) else (select s.sub_test from sub_tests s where s.sub_test_id=l.sub_test_id_c) end as sub_test,case when l.Status=1 then (select s.sub_test_id from sub_tests s where s.sub_test_id=l.sub_test_id) else (select s.sub_test_id from sub_tests s where s.sub_test_id=l.sub_test_id_c) end as sub_test_id, case when l.Status=1 then (select e.result_id from expected_results e where e.result_id=l.expected_result_id) else (select e.result_id from expected_results e where e.result_id=l.expected_result_id_c) end as expected_result_id,case when l.Status=1 then (select e.result from expected_results e where e.result_id=l.expected_result_id) else (select e.result from expected_results e where e.result_id=l.expected_result_id_c) end as expected_result, l.other_results,l.other_results_c,l.Comment,l.Comment_c,l.Sample_Type,l.Sample_Type_c,u.FullName,l.Result_Id,l.Status,ld.Start_Time,ld.End_Time FROM lab_tests_results l,specific_tests sp,test_names t,lab_tests_duration ld,users u,lab_tests_requests q,specific_tests s where sp.specific_test_id=s.specific_test_id and t.test_id=sp.test_id and l.Request_Id=ld.Request_Id and u.UID=l.Performed_By_c and q.Request_Id=l.Request_Id and q.test_name_id=t.test_id and q.Track_Id=? group by l.Result_Id";
+//            String query = "SELECT q.Request_Id,t.test_name,t.test_id, case when l.Status=1 Then (select sp.specific_test from specific_tests sp where sp.specific_test_id=l.specific_test_id) else (select sp.specific_test from specific_tests sp where sp.specific_test_id=l.specific_test_id_c) End As specific_test_name, case when l.Status=1 Then (select sp.specific_test_id from specific_tests sp where sp.specific_test_id=l.specific_test_id) else (select sp.specific_test_id from specific_tests sp where sp.specific_test_id=l.specific_test_id_c) End As specific_test_id,case when l.Status=1 then (select s.sub_test from sub_tests s where s.sub_test_id=l.sub_test_id) else (select s.sub_test from sub_tests s where s.sub_test_id=l.sub_test_id_c) end as sub_test,case when l.Status=1 then (select s.sub_test_id from sub_tests s where s.sub_test_id=l.sub_test_id) else (select s.sub_test_id from sub_tests s where s.sub_test_id=l.sub_test_id_c) end as sub_test_id, case when l.Status=1 then (select e.result_id from expected_results e where e.result_id=l.expected_result_id) else (select e.result_id from expected_results e where e.result_id=l.expected_result_id_c) end as expected_result_id,case when l.Status=1 then (select e.result from expected_results e where e.result_id=l.expected_result_id) else (select e.result from expected_results e where e.result_id=l.expected_result_id_c) end as expected_result, l.other_results,l.other_results_c,l.Comment,l.Comment_c,l.Sample_Type,l.Sample_Type_c,u.FullName,l.Result_Id,l.Status,ld.Start_Time,ld.End_Time FROM lab_tests_results l,specific_tests sp,test_names t,lab_tests_duration ld,users u,lab_tests_requests q,specific_tests s where sp.specific_test_id=s.specific_test_id and t.test_id=sp.test_id and l.Request_Id=ld.Request_Id and u.UID=l.Performed_By_c and q.Request_Id=l.Request_Id and q.test_name_id=t.test_id and q.Track_Id=? group by l.Result_Id";
+            String query = "select l.Result_Date,t.test_name,t.test_id,s.sub_test,sp.specific_test, e.result as expected_result,"
+                    + "l.Result_Id,l.specific_test_id,l.sub_test_id,l.expected_result_id,l.other_results,l.Sample_Type"
+                    + ",l.Comment,(select us.FullName from users us where us.UID=q.Requested_By) as requestedby ,"
+                    + "u.FullName,l.Performed_By,l.Result_Date,l.Status,l.Request_Id from lab_tests_results l "
+                    + "inner join lab_tests_requests q on l.Request_Id=q.Request_Id "
+                    + "inner join users u on u.UID=l.Performed_By "
+                    + "inner join expected_results e ON e.result_id=l.expected_result_id "
+                    + "INNER JOIN sub_tests s ON s.sub_test_id=l.sub_test_id "
+                    + "INNER JOIN specific_tests sp ON sp.specific_test_id=s.specific_test_id "
+                    + "INNER JOIN test_names t ON t.test_id=sp.test_id WHERE q.Track_Id=?  ";
             PreparedStatement stmt = con.prepareStatement(query);
-//            PreparedStatement stmt = con.prepareStatement("SELECT q.Request_Id,t.test_name,sp.specific_test,s.sub_test,e.result,l.other_results,u.FullName,l.Result_Id,ld.Start_Time,ld.End_Time FROM lab_tests_results l INNER JOIN lab_tests_requests q ON q.Request_Id=l.Request_Id INNER JOIN expected_results e ON e.result_id=l.expected_result_id INNER JOIN sub_tests s ON s.sub_test_id=l.sub_test_id INNER JOIN specific_tests sp ON sp.specific_test_id=s.specific_test_id INNER JOIN test_names t ON t.test_id=sp.test_id INNER JOIN lab_tests_duration ld ON l.Request_Id=ld.Request_Id INNER JOIN users u ON u.UID=l.Performed_By WHERE q.Track_Id=? AND NOT EXISTS (Select Record_Date From lab_tasks lt Where lt.Track_Id=q.Track_Id and lt.Record_Date>q.Request_Time)");
+//            PreparedStatement stmt = con.prepareStatement("SELECT q.Request_Id,t.test_name,sp.specific_test,s.sub_test,e.result,l.other_results,u.FullName,l.Result_Id,ld.Start_Time,ld.End_Time FROM lab_tests_results l INNER JOIN lab_tests_requests q ON q.Request_Id=l.Request_Id INNER JOIN expected_results e ON e.result_id=l.expected_result_id INNER JOIN sub_tests s ON s.sub_test_id=l.sub_test_id INNER JOIN specific_tests sp ON sp.specific_test_id=s.specific_test_id INNER JOIN test_names t ON t.test_id=sp.test_id INNER JOIN lab_tests_duration ld ON l.Request_Id=ld.Request_Id INNER JOIN users u ON u.UID=l.Performed_By WHERE q.Track_Id=? ");
             stmt.setString(1, task_id);
 
             ResultSet rs = stmt.executeQuery();
@@ -569,47 +583,34 @@ public class LaboratoryDAO implements Serializable {
                 String general_tests = "";
                 String general_results = "";
                 String testresults = (rs.getString("expected_result").contains("write")) ? "" : rs.getString("expected_result");
-                String comment_c = (rs.getString("Comment_c") == null || rs.getString("Comment_c") == "") ? "" : rs.getString("Comment_c");
-                String comment_ = (rs.getString("Comment") == null || rs.getString("Comment") == "") ? "" : rs.getString("Comment");
-                String comment = (rs.getInt("Status") == 1) ? comment_ : comment_c;
-                comment = (comment.equals("") || comment == null) ? "" : "( " + comment + " )";
-                String commentz = (rs.getInt("Status") == 1) ? comment_ : comment_c;
-
-                String sample_type = (rs.getInt("Status") == 1) ? rs.getString("Sample_Type") : rs.getString("Sample_Type_c");
-                String other_results = (rs.getInt("Status") == 1) ? rs.getString("other_results") : rs.getString("other_results_c");
-                String specific = (rs.getString("specific_test_name").equalsIgnoreCase("None")) ? "" : " : " + rs.getString("specific_test_name");
+                String specific = (rs.getString("test_name").equalsIgnoreCase("None")) ? "" : " : " + rs.getString("specific_test");
                 String subtest = (rs.getString("sub_test").equalsIgnoreCase("None")) ? "" : " / " + rs.getString("sub_test");
-
                 general_tests = general_tests + "" + rs.getString("test_name") + "" + specific + "" + subtest;
-                general_results = testresults + "  " + other_results;
-                boolean rendering_edit = (rs.getInt("Status") == 1) ? true : false;
-                boolean rendering_confirm = (rs.getInt("Status") == 1) ? false : true;
+                general_results = testresults + "  " + rs.getString("other_results");
+                
+                
                 test_result = new LabTestResults();
                 test_result.setResult_id(Integer.valueOf(rs.getInt("Result_Id")));
                 test_result.setRequest_id(Integer.valueOf(rs.getInt("Request_Id")));
                 test_result.setTest_name(rs.getString("test_name"));
-                test_result.setSpecific_test(rs.getString("specific_test_name"));
+                test_result.setSpecific_test(rs.getString("specific_test"));
                 test_result.setSub_test(rs.getString("sub_test"));
                 test_result.setExpected_result(testresults);
-                test_result.setOther_result(other_results);
+                test_result.setOther_result(rs.getString("other_results"));
                 test_result.setTest_carriedout_by(rs.getString("FullName"));
-                test_result.setStart_time(rs.getString("Start_Time").substring(0, 16));
-                test_result.setEnd_time(rs.getString("End_Time").substring(0, 16));
                 test_result.setSub_test_id(Integer.valueOf(rs.getInt("sub_test_id")));
                 test_result.setGeneral_test(general_tests);
-                test_result.setComment(commentz);
-                test_result.setComment_blacket(comment);
-                test_result.setRendering_confirm(rendering_confirm);
-                test_result.setRendering_edit(rendering_edit);
+                test_result.setComment(rs.getString("Comment"));
+                test_result.setComment_blacket(rs.getString("Comment"));
                 test_result.setTest_id(Integer.valueOf(rs.getInt("test_id")));
                 test_result.setSpecific_test_id(Integer.valueOf(rs.getInt("specific_test_id")));
                 test_result.setExpected_result_id(Integer.valueOf(rs.getInt("expected_result_id")));
                 test_result.setExpected_result(rs.getString("expected_result"));
-                test_result.setSample_type(sample_type);
+                test_result.setSample_type(rs.getString("Sample_Type"));
                 test_result.setGeneral_results(general_results);
+                test_result.setResultdate(rs.getDate("Result_Date"));
 
                 results.add(test_result);
-                general_tests = "";
             }
             con.close();
             rs.close();
@@ -697,10 +698,10 @@ public class LaboratoryDAO implements Serializable {
 
             con = Apache_Connectionpool.getInstance().getConnection();
             date = new Date();
-            String query = "SELECT f.Track_Id,f.Patient_Id,f.Patient_Name,TIMESTAMPDIFF(YEAR, f.DOB, CURDATE()) AS Age,f.Gender,f.VisitReason,f.Problem,f.Triage_Category,d.DepartmentName,c.Locked,c.Staff_Id,f.Room_No,c.Record_Date,c.Urgency,c.Lab_Id,c.Forward_To FROM lab_pending c INNER JOIN frontdesk_tasks f ON c.Track_Id=f.Track_Id INNER JOIN users u ON c.From_Staff=u.UID INNER JOIN department d ON u.DID=d.DID  order by c.Urgency,c.Record_Date ASC";
+            String query = "SELECT f.Track_Id,f.Patient_Id,f.Patient_Name,TIMESTAMPDIFF(YEAR, f.DOB, CURDATE()) AS Age,f.Gender,f.VisitReason,f.Problem,f.Triage_Category,d.DepartmentName,c.Locked,c.Staff_Id,f.Room_No,c.Record_Date,c.Urgency,c.Lab_Id,c.Forward_To FROM lab_pending c INNER JOIN frontdesk_tasks f ON c.Track_Id=f.Track_Id INNER JOIN lab_tests_requests lt ON lt.Track_Id=f.Track_Id INNER JOIN users u ON c.From_Staff=u.UID INNER JOIN department d ON u.DID=d.DID WHERE lt.Status='PENDING' GROUP BY f.Track_Id order by c.Urgency,c.Record_Date ASC";
             // PreparedStatement stmt = con.prepareStatement("SELECT f.Track_Id,f.Patient_Id,f.Patient_Name,f.Age,f.Gender,f.VisitReason,f.Problem,f.Triage_Category,d.DepartmentName,c.Locked,c.Staff_Id,f.Room_No,c.Record_Date,c.Urgency,c.Lab_Id,c.Forward_To FROM lab_pending c INNER JOIN frontdesk_tasks f ON c.Track_Id=f.Track_Id INNER JOIN users u ON c.From_Staff=u.UID INNER JOIN department d ON u.DID=d.DID order by c.Urgency,c.Record_Date ASC");
             PreparedStatement stmt = con.prepareStatement(query);
-           
+
             ResultSet rs = stmt.executeQuery();
             List pending_list = new ArrayList();
             Integer color_code;
@@ -950,7 +951,7 @@ public class LaboratoryDAO implements Serializable {
             DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             date = new Date();
 
-            PreparedStatement ps = con.prepareStatement("INSERT INTO lab_tests_results(Request_Id,other_results_c,Performed_By_c,Sample_Type_c,Comment_c,specific_test_id_c,sub_test_id_c,expected_result_id_c,Result_Date_c,Status) VALUES(?,?,?,?,?,?,?,?,?,?)");
+            PreparedStatement ps = con.prepareStatement("INSERT INTO lab_tests_results(Request_Id,other_results,Performed_By,Sample_Type,Comment,specific_test_id,sub_test_id,expected_result_id,Result_Date,Status) VALUES(?,?,?,?,?,?,?,?,?,?)");
             ps.setInt(1, request_id.intValue());
             ps.setString(2, requested_test_result);
             ps.setString(3, staff_id);
@@ -1013,7 +1014,7 @@ public class LaboratoryDAO implements Serializable {
             con = Apache_Connectionpool.getInstance().getConnection();
             date = new Date();
 
-            PreparedStatement stmt = con.prepareStatement("SELECT * FROM lab_tests_results WHERE Request_Id=? AND specific_test_id_c=? AND sub_test_id_c=?");
+            PreparedStatement stmt = con.prepareStatement("SELECT * FROM lab_tests_results WHERE Request_Id=? AND specific_test_id=? AND sub_test_id=?");
             stmt.setInt(1, request_id);
             stmt.setInt(2, specific_test_id);
             stmt.setInt(3, sub_test_id);
@@ -1426,7 +1427,7 @@ public class LaboratoryDAO implements Serializable {
             date = new Date();
 
 //            PreparedStatement stmt = con.prepareStatement("SELECT s.specific_test_id,tc.category,t.test_name,s.specific_test FROM specific_tests s INNER JOIN test_names t ON t.test_id=s.test_id INNER JOIN test_categories tc ON tc.category_id=t.category_id WHERE t.test_id=? order by s.specific_test ASC");
-            PreparedStatement stmt = con.prepareStatement("SELECT s.specific_test_id,tc.category,t.test_name,s.specific_test FROM specific_tests s INNER JOIN test_names t ON t.test_id=s.test_id INNER JOIN test_categories tc ON tc.category_id=t.category_id WHERE s.Status='TRUE' order by s.specific_test_id Desc");
+            PreparedStatement stmt = con.prepareStatement("SELECT s.specific_test_id,tc.category,t.test_name,s.specific_test FROM specific_tests s INNER JOIN test_names t ON t.test_id=s.test_id INNER JOIN test_categories tc ON tc.category_id=t.category_id WHERE s.Status='TRUE' AND t.test_id='" + test_name_id + "' order by s.specific_test_id Desc");
 
             ResultSet rs = stmt.executeQuery();
             List specific_tests = new ArrayList();
@@ -1449,6 +1450,73 @@ public class LaboratoryDAO implements Serializable {
         }
     }
 
+    public static List<SpecificTest> Laboratory_Get_Specific_Tests() throws SQLException {
+
+        try {
+            Connection con;
+            SpecificTest specific_test;
+
+            con = Apache_Connectionpool.getInstance().getConnection();
+            date = new Date();
+
+//            PreparedStatement stmt = con.prepareStatement("SELECT s.specific_test_id,tc.category,t.test_name,s.specific_test FROM specific_tests s INNER JOIN test_names t ON t.test_id=s.test_id INNER JOIN test_categories tc ON tc.category_id=t.category_id WHERE t.test_id=? order by s.specific_test ASC");
+            PreparedStatement stmt = con.prepareStatement("SELECT s.specific_test_id,tc.category,t.test_name,s.specific_test FROM specific_tests s INNER JOIN test_names t ON t.test_id=s.test_id INNER JOIN test_categories tc ON tc.category_id=t.category_id WHERE s.Status='TRUE'  order by s.specific_test_id Desc");
+
+            ResultSet rs = stmt.executeQuery();
+            List specific_tests = new ArrayList();
+
+            while (rs.next()) {
+                specific_test = new SpecificTest();
+                specific_test.setSpecific_test_id(Integer.valueOf(rs.getInt("specific_test_id")));
+//                specific_test.setSpecific_test_id(rs.getInt("specific_test_id"));                
+                specific_test.setSpecific_test(rs.getString("specific_test"));
+                specific_test.setTest_category(rs.getString("category"));
+                specific_test.setTest_name(rs.getString("test_name"));
+                specific_tests.add(specific_test);
+            }
+            con.close();
+            rs.close();
+            return specific_tests;
+        } catch (Exception ex) {
+            ErrorDAO.Error_Add(new Error("Laboratory DAO", "Laboratory_Get_Specific_Tests", " Message: " + ex.getMessage(), date));
+            return null;
+        }
+    }
+
+    public static List<SubTest> Laboratory_Get_Sub_Tests() throws SQLException {
+
+        try {
+            Connection con;
+            SubTest sub_test;
+
+            con = Apache_Connectionpool.getInstance().getConnection();
+            date = new Date();
+
+//            PreparedStatement stmt = con.prepareStatement("SELECT s.sub_test_id,tc.category,t.test_name,sp.specific_test,s.sub_test FROM sub_tests s INNER JOIN specific_tests sp ON sp.specific_test_id=s.specific_test_id INNER JOIN test_names t ON t.test_id=sp.test_id INNER JOIN test_categories tc ON tc.category_id=t.category_id WHERE s.specific_test_id=? order by s.sub_test ASC");
+            PreparedStatement stmt = con.prepareStatement(" SELECT s.sub_test_id,tc.category,t.test_name,sp.specific_test,s.sub_test FROM sub_tests s INNER JOIN specific_tests sp ON sp.specific_test_id=s.specific_test_id INNER JOIN test_names t ON t.test_id=sp.test_id INNER JOIN test_categories tc ON tc.category_id=t.category_id WHERE s.Status='TRUE'  order by s.sub_test_id Desc");
+//           
+
+            ResultSet rs = stmt.executeQuery();
+            List sub_tests = new ArrayList();
+
+            while (rs.next()) {
+                sub_test = new SubTest();
+                sub_test.setSub_test_id(Integer.valueOf(rs.getInt("sub_test_id")));
+                sub_test.setTest_category(rs.getString("category"));
+                sub_test.setTest_name(rs.getString("test_name"));
+                sub_test.setSpecific_test(rs.getString("specific_test"));
+                sub_test.setSub_test(rs.getString("sub_test"));
+                sub_tests.add(sub_test);
+            }
+            con.close();
+            rs.close();
+            return sub_tests;
+        } catch (Exception ex) {
+            ErrorDAO.Error_Add(new Error("Laboratory DAO", "Laboratory_Get_Sub_Tests", " Message: " + ex.getMessage(), date));
+            return null;
+        }
+    }
+
     public static List<SubTest> Laboratory_Get_Sub_Tests(Integer specific_test_id) throws SQLException {
 
         try {
@@ -1459,7 +1527,7 @@ public class LaboratoryDAO implements Serializable {
             date = new Date();
 
 //            PreparedStatement stmt = con.prepareStatement("SELECT s.sub_test_id,tc.category,t.test_name,sp.specific_test,s.sub_test FROM sub_tests s INNER JOIN specific_tests sp ON sp.specific_test_id=s.specific_test_id INNER JOIN test_names t ON t.test_id=sp.test_id INNER JOIN test_categories tc ON tc.category_id=t.category_id WHERE s.specific_test_id=? order by s.sub_test ASC");
-            PreparedStatement stmt = con.prepareStatement(" SELECT s.sub_test_id,tc.category,t.test_name,sp.specific_test,s.sub_test FROM sub_tests s INNER JOIN specific_tests sp ON sp.specific_test_id=s.specific_test_id INNER JOIN test_names t ON t.test_id=sp.test_id INNER JOIN test_categories tc ON tc.category_id=t.category_id WHERE s.Status='TRUE' order by s.sub_test_id Desc");
+            PreparedStatement stmt = con.prepareStatement(" SELECT s.sub_test_id,tc.category,t.test_name,sp.specific_test,s.sub_test FROM sub_tests s INNER JOIN specific_tests sp ON sp.specific_test_id=s.specific_test_id INNER JOIN test_names t ON t.test_id=sp.test_id INNER JOIN test_categories tc ON tc.category_id=t.category_id WHERE s.Status='TRUE' AND s.specific_test_id='" + specific_test_id + "' order by s.sub_test_id Desc");
 //           
 
             ResultSet rs = stmt.executeQuery();
@@ -1941,7 +2009,113 @@ public class LaboratoryDAO implements Serializable {
             return false;
         }
     }
+    
+    public static List<ReceptionTask> Laboratory_Get_Completed(String staff_id)
+            throws SQLException {
 
+        try {
+            Connection con;
+            ReceptionTask receptiontask;
+
+            con = Apache_Connectionpool.getInstance().getConnection();
+            date = new Date();
+            String query = "SELECT f.Track_Id,f.Patient_Id,f.Patient_Name,TIMESTAMPDIFF(YEAR, f.DOB, CURDATE()) AS Age,f.Gender,f.VisitReason,f.Problem,f.Triage_Category,d.DepartmentName,c.Locked,c.Staff_Id,f.Room_No,c.Record_Date,c.Urgency,c.Lab_Id,c.Forward_To FROM lab_pending c INNER JOIN frontdesk_tasks f ON c.Track_Id=f.Track_Id INNER JOIN lab_tests_requests lt ON lt.Track_Id=f.Track_Id INNER JOIN users u ON c.From_Staff=u.UID INNER JOIN department d ON u.DID=d.DID WHERE lt.Status='Completed' GROUP BY f.Track_Id order by c.Urgency,c.Record_Date ASC";
+            // PreparedStatement stmt = con.prepareStatement("SELECT f.Track_Id,f.Patient_Id,f.Patient_Name,f.Age,f.Gender,f.VisitReason,f.Problem,f.Triage_Category,d.DepartmentName,c.Locked,c.Staff_Id,f.Room_No,c.Record_Date,c.Urgency,c.Lab_Id,c.Forward_To FROM lab_pending c INNER JOIN frontdesk_tasks f ON c.Track_Id=f.Track_Id INNER JOIN users u ON c.From_Staff=u.UID INNER JOIN department d ON u.DID=d.DID order by c.Urgency,c.Record_Date ASC");
+            PreparedStatement stmt = con.prepareStatement(query);
+
+            ResultSet rs = stmt.executeQuery();
+            List pending_list = new ArrayList();
+            Integer color_code;
+            while (rs.next()) {
+                color_code = Integer.valueOf(-1);
+
+                if (!rs.getBoolean("Locked")) {
+                    if ("Laboratory".equals(rs.getString("DepartmentName"))) {
+                        color_code = Integer.valueOf(3);
+                    } else if ("Gray".equals(rs.getString("Triage_Category"))) {
+                        color_code = Integer.valueOf(0);
+                    } else if ("Green".equals(rs.getString("Triage_Category"))) {
+                        color_code = Integer.valueOf(1);
+                    } else if ("Red".equals(rs.getString("Triage_Category"))) {
+                        color_code = Integer.valueOf(2);
+                    } else if ("Yellow".equals(rs.getString("Triage_Category"))) {
+                        color_code = Integer.valueOf(3);
+                    } else if ("Blue".equals(rs.getString("Triage_Category"))) {
+                        color_code = Integer.valueOf(4);
+                    } else if ("Orange".equals(rs.getString("Triage_Category"))) {
+                        color_code = Integer.valueOf(5);
+                    }
+
+                    receptiontask = new ReceptionTask(rs.getString("Track_Id"), rs.getString("Patient_Id"), rs.getString("Patient_Name"), Integer.valueOf(rs.getInt("Age")), rs.getString("Gender"), rs.getString("VisitReason"), rs.getString("Problem"), color_code, rs.getString("Room_No"), rs.getString("Record_Date"), rs.getString("Urgency"), rs.getString("Lab_Id"), rs.getString("Forward_To"));
+//                    receptiontask = new ReceptionTask(rs.getString("Track_Id"), rs.getString("Patient_Id"), rs.getString("Patient_Name"), Integer.valueOf(rs.getInt("Age")), rs.getString("Gender"), rs.getString("VisitReason"), rs.getString("Problem"), color_code, rs.getString("Room_No"), rs.getString("Record_Date"), rs.getString("Urgency"), rs.getString("Lab_Id"), rs.getString("DepartmentName"));
+
+                    pending_list.add(receptiontask);
+                } else if (staff_id.equals(rs.getString("Staff_Id"))) {
+                    if ("Laboratory".equals(rs.getString("DepartmentName"))) {
+                        color_code = Integer.valueOf(3);
+                    } else if ("Gray".equals(rs.getString("Triage_Category"))) {
+                        color_code = Integer.valueOf(0);
+                    } else if ("Green".equals(rs.getString("Triage_Category"))) {
+                        color_code = Integer.valueOf(1);
+                    } else if ("Red".equals(rs.getString("Triage_Category"))) {
+                        color_code = Integer.valueOf(2);
+                    } else if ("Yellow".equals(rs.getString("Triage_Category"))) {
+                        color_code = Integer.valueOf(3);
+                    } else if ("Blue".equals(rs.getString("Triage_Category"))) {
+                        color_code = Integer.valueOf(4);
+                    } else if ("Orange".equals(rs.getString("Triage_Category"))) {
+                        color_code = Integer.valueOf(5);
+                    }
+
+                    receptiontask = new ReceptionTask(rs.getString("Track_Id"), rs.getString("Patient_Id"), rs.getString("Patient_Name"), Integer.valueOf(rs.getInt("Age")), rs.getString("Gender"), rs.getString("VisitReason"), rs.getString("Problem"), color_code, rs.getString("Room_No"), rs.getString("Record_Date"), rs.getString("Urgency"), rs.getString("Lab_Id"), rs.getString("Forward_To"));
+//                    receptiontask = new ReceptionTask(rs.getString("Track_Id"), rs.getString("Patient_Id"), rs.getString("Patient_Name"), Integer.valueOf(rs.getInt("Age")), rs.getString("Gender"), rs.getString("VisitReason"), rs.getString("Problem"), color_code, rs.getString("Room_No"), rs.getString("Record_Date"), rs.getString("Urgency"), rs.getString("Lab_Id"), rs.getString("DepartmentName"));
+
+                    pending_list.add(receptiontask);
+                }
+
+            }
+            con.close();
+            rs.close();
+            return pending_list;
+        } catch (Exception ex) {
+            ErrorDAO.Error_Add(new Error("Laboratory DAO", "Laboratory_Get_Pending", " Message: " + ex.getMessage(), date));
+            return null;
+        }
+    }
+
+     public static List<testresults> tableLaboratory_Get_Sub_Tests(Integer specific_test_id) throws SQLException {
+
+        try {
+            Connection con;
+            testresults sub_test;
+
+            con = Apache_Connectionpool.getInstance().getConnection();
+            date = new Date();
+
+//            PreparedStatement stmt = con.prepareStatement("SELECT s.sub_test_id,tc.category,t.test_name,sp.specific_test,s.sub_test FROM sub_tests s INNER JOIN specific_tests sp ON sp.specific_test_id=s.specific_test_id INNER JOIN test_names t ON t.test_id=sp.test_id INNER JOIN test_categories tc ON tc.category_id=t.category_id WHERE s.specific_test_id=? order by s.sub_test ASC");
+            PreparedStatement stmt = con.prepareStatement(" SELECT s.sub_test_id,tc.category,t.test_name,sp.specific_test,s.sub_test FROM sub_tests s INNER JOIN specific_tests sp ON sp.specific_test_id=s.specific_test_id INNER JOIN test_names t ON t.test_id=sp.test_id INNER JOIN test_categories tc ON tc.category_id=t.category_id WHERE s.Status='TRUE' AND s.specific_test_id='" + specific_test_id + "' order by s.sub_test_id Desc");
+//           
+
+            ResultSet rs = stmt.executeQuery();
+            List sub_tests = new ArrayList();
+
+            while (rs.next()) {
+                sub_test = new testresults();
+                sub_test.setSub_test_id(Integer.valueOf(rs.getInt("sub_test_id")));
+               
+                sub_test.setSub_test(rs.getString("sub_test"));
+                sub_tests.add(sub_test);
+            }
+            con.close();
+            rs.close();
+            return sub_tests;
+        } catch (Exception ex) {
+            ErrorDAO.Error_Add(new Error("Laboratory DAO", "Laboratory_Get_Sub_Tests", " Message: " + ex.getMessage(), date));
+            return null;
+        }
+    }
+      
+      
     /*
      * 
      * 

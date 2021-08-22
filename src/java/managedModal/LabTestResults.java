@@ -1,6 +1,7 @@
 package managedModal;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.logging.Logger;
 
 public class LabTestResults
@@ -30,6 +31,7 @@ public class LabTestResults
     private boolean rendering_confirm;
     private boolean rendering_edit;
     private String sample_type;
+    private Date resultdate;
 
     public String getSample_type() {
         return sample_type;
@@ -53,6 +55,14 @@ public class LabTestResults
 
     public void setSpecific_test_id(Integer specific_test_id) {
         this.specific_test_id = specific_test_id;
+    }
+
+    public Date getResultdate() {
+        return resultdate;
+    }
+
+    public void setResultdate(Date resultdate) {
+        this.resultdate = resultdate;
     }
 
     

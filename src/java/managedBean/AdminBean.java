@@ -955,7 +955,7 @@ public class AdminBean
 
     public List<SpecificTest> admin_get_specific_tests() {
         try {
-            specific_tests = LaboratoryDAO.Laboratory_Get_Specific_Tests(test_name_id);
+            specific_tests = LaboratoryDAO.Laboratory_Get_Specific_Tests();
             return specific_tests;
         } catch (Exception ex) {
             System.out.println("Exception In Admin Bean: admin_get_specific_tests: " + ex.getMessage());
@@ -965,7 +965,7 @@ public class AdminBean
 
     public List<SubTest> admin_get_sub_tests() {
         try {
-            sub_tests = LaboratoryDAO.Laboratory_Get_Sub_Tests(specific_test_id);
+            sub_tests = LaboratoryDAO.Laboratory_Get_Sub_Tests();
             return sub_tests;
         } catch (Exception ex) {
             System.out.println("Exception In Admin Bean: admin_get_sub_tests: " + ex.getMessage());

@@ -1,0 +1,305 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
+
+    <ui:define name="content">
+
+        <div class="card">
+            <h:form id="makepayments">  
+                <p:commandButton value="Back"  action="#{accountsBean.back()}" />
+
+                <div class="p-grid">
+
+                    <div class="p-col-12 p-md-4 p-sm-12 card">
+                        <h:outputLabel value="Patient ID: " styleClass="headercolumn" />                  
+                        <h:outputText value="#{accountsBean.patient_view.memberId}" styleClass="datacolumn"/>
+                        <p:outputPanel id="photo">
+                            <p:graphicImage name="demo/images/photocam/#{accountsBean.patient_view.memberId}.jpeg" alt="#{accountsBean.patient_view.memberId}"/>
+                        </p:outputPanel>
+
+                    </div>
+                    <div class="p-grid p-col-12 p-md-8 p-sm-12 card">
+                        <div class="p-col-12 p-md-4 p-sm-12">
+                            <div class="p-formgroup-inline">
+                                <div class="p-field">
+                                    <h:outputLabel value="Patient Name: "   style="font-weight: bold"/>
+                                    <h:outputLabel value="#{accountsBean.patient_view.fullname}" styleClass="datacolumn" />
+
+                                </div>
+                            </div>
+                            <div class="p-formgroup-inline">
+                                <div class="p-field">
+                                    <h:outputLabel value="Gender: "   style="font-weight: bold"/>
+                                    <h:outputLabel value="#{accountsBean.patient_view.memberGender}" styleClass="datacolumn" />
+
+                                </div>
+                            </div>
+                            <div class="p-formgroup-inline">
+                                <div class="p-field">
+                                    <h:outputLabel value="Age: "   style="font-weight: bold"/>
+                                    <h:outputLabel value="#{accountsBean.patient_view.age}" styleClass="datacolumn" />
+
+                                </div>
+                            </div>
+                            <div class="p-formgroup-inline">
+                                <div class="p-field">
+                                    <h:outputLabel value="District: "   style="font-weight: bold"/>
+                                    <h:outputLabel value="#{accountsBean.patient_view.parish}" styleClass="datacolumn" />
+
+                                </div>
+                            </div>
+                            <div class="p-formgroup-inline">
+                                <div class="p-field">
+                                    <h:outputLabel value="Subcounty: "   style="font-weight: bold"/>
+                                    <h:outputLabel value="#{accountsBean.patient_view.subcounty}" styleClass="datacolumn" />
+
+                                </div>
+                            </div>
+                            <div class="p-formgroup-inline">
+                                <div class="p-field">
+                                    <h:outputLabel value="Village: "   style="font-weight: bold"/>
+                                    <h:outputLabel value="#{accountsBean.patient_view.village}" styleClass="datacolumn" />
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-grid p-col-12 p-md-8 p-sm-12">
+                            <div class=" p-col-12 p-md-6  p-sm-12">
+                                <div class="p-formgroup-inline">
+                                    <div class="p-field">
+                                        <h:outputLabel value="Referral Status: "   style="font-weight: bold"/>
+                                        <h:outputLabel value="#{accountsBean.reception_info_view.referral_status}" styleClass="datacolumn" />
+
+                                    </div>
+                                </div>
+                                <div class="p-formgroup-inline">
+                                    <div class="p-field">
+                                        <h:outputLabel value="Referral From: "   style="font-weight: bold"/>
+                                        <h:outputLabel value="#{accountsBean.reception_info_view.referred_from}" styleClass="datacolumn" />
+
+                                    </div>
+                                </div>
+                                <div class="p-formgroup-inline">
+                                    <div class="p-field">
+                                        <h:outputLabel value="Weight: "   style="font-weight: bold"/>
+                                        <h:outputLabel value="#{accountsBean.reception_info_view.weight}" styleClass="datacolumn" />
+
+                                    </div>
+                                </div>
+                                <div class="p-formgroup-inline">
+                                    <div class="p-field">
+                                        <h:outputLabel value="Height(cm): "   style="font-weight: bold"/>
+                                        <h:outputLabel value="#{accountsBean.reception_info_view.height}" styleClass="datacolumn" />
+
+                                    </div>
+                                </div>
+                                <div class="p-formgroup-inline">
+                                    <div class="p-field">
+                                        <h:outputLabel value="Temperature: "   style="font-weight: bold"/>
+                                        <h:outputLabel value="#{accountsBean.reception_info_view.temperature}" styleClass="datacolumn" />
+
+                                    </div>
+                                </div>
+                                <div class="p-formgroup-inline">
+                                    <div class="p-field">
+                                        <h:outputLabel value="Oxygen Saturation:  "   style="font-weight: bold"/>
+                                        <h:outputLabel value="#{accountsBean.reception_info_view.oxy_saturation}" styleClass="datacolumn" />
+
+                                    </div>
+                                </div>
+                                <div class="p-formgroup-inline">
+                                    <div class="p-field">
+                                        <h:outputLabel value="Heart Pulse:  "   style="font-weight: bold"/>
+                                        <h:outputLabel value="#{accountsBean.reception_info_view.heart_pulse}" styleClass="datacolumn" />
+
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class=" p-col-12 p-md-6  p-sm-12">
+                                <div class="p-formgroup-inline">
+                                    <div class="p-field">
+                                        <h:outputLabel value="Blood Pressure:  "   style="font-weight: bold"/>
+                                        <h:outputLabel value="#{accountsBean.reception_info_view.blood_pressure}" styleClass="datacolumn" />
+
+                                    </div>
+                                </div>
+                                <div class="p-formgroup-inline">
+                                    <div class="p-field">
+                                        <h:outputLabel value="Respiratory Rate:  "   style="font-weight: bold"/>
+                                        <h:outputLabel value="#{accountsBean.reception_info_view.respiratory_rate}" styleClass="datacolumn" />
+
+                                    </div>
+                                </div>
+                                <div class="p-formgroup-inline">
+                                    <div class="p-field">
+                                        <h:outputLabel value="Family Planning: "   style="font-weight: bold"/>
+                                        <h:outputLabel value="#{accountsBean.reception_info_view.family_planning}" styleClass="datacolumn" />
+
+                                    </div>
+                                </div>
+                                <div class="p-formgroup-inline">
+                                    <div class="p-field">
+                                        <h:outputLabel value="ITN in Use:  "   style="font-weight: bold"/>
+                                        <h:outputLabel value="#{accountsBean.reception_info_view.itn_in_use}" styleClass="datacolumn" />
+
+                                    </div>
+                                </div>
+                                <div class="p-formgroup-inline">
+                                    <div class="p-field">
+                                        <h:outputLabel value="Visit Reason:  "   style="font-weight: bold"/>
+                                        <h:outputLabel value="#{accountsBean.reception_info_view.problem}" styleClass="datacolumn" />
+
+                                    </div>
+                                </div>
+                                <div class="p-formgroup-inline">
+                                    <div class="p-field">
+                                        <h:outputLabel value="Triage Category: "   style="font-weight: bold"/>
+                                        <h:outputLabel value="#{accountsBean.reception_info_view.triage_category}" styleClass="datacolumn" />
+
+                                    </div>
+                                </div>
+
+
+                            </div>
+                        </div>
+
+
+
+                    </div>
+
+                </div>
+                <p:messages id="notification"/>
+                <div class="p-grid">
+                    <div class="p-col-12 p-md-6 p-sm-12 card">
+                        <h:outputLabel style="font-weight: bold" value="Outstanding Payments " styleClass="headercolumn" />
+
+                        <p:dataTable id="selectedTests" value="#{accountsBean.payment_list}" 
+                                     paginator="false" rows="4" paginatorPosition="bottom" var="pay" style="width:100%;margin-bottom: 25px;"
+                                     emptyMessage="No Outstanding Payments " >
+                            <p:column headerText="Service" styleClass="tblcol6">  
+                                #{pay.operation}
+                            </p:column>  
+
+                            <p:column headerText="Payable Amount" styleClass="tblcol6">  
+                                #{pay.amount}
+                            </p:column>  
+                            <p:column headerText="Amount Paid" styleClass="tblcol6">  
+                                <p:spinner size="10" value="#{pay.paid}"  stepFactor="0"  />
+
+                            </p:column> 
+                            <f:facet name="footer" >
+                                <p:commandButton action="#{accountsBean.accounts_forward_task(appMenu.userid)}" update="selectedTests,:makepayments:paymentstble,:makepayments:notification" icon="pi pi-money-bill" style="width: 10rem; font-size: smaller;" value="Save Payment"  />
+
+                            </f:facet>
+
+                        </p:dataTable>
+                    </div>
+                    <div class="p-col-12 p-md-6 p-sm-12 card">
+                        <h:outputLabel style="font-weight: bold" value="Payments Already Made " styleClass="headercolumn" />
+                        <p:dataTable id="paymentstble" value="#{accountsBean.accounts_get_payments_view()}"                              
+                                     paginator="false" rows="12" paginatorPosition="bottom" var="pres" style="width: 100%;"
+                                     emptyMessage="No Payments Have Been Made ">
+
+                            <p:column headerText="Service" styleClass="tblcol6">  
+                                #{pres.operation} 
+                            </p:column>
+
+                            <p:column headerText="Amount" styleClass="tblcol6">  
+                                #{pres.amount} 
+                            </p:column>
+                            <f:facet name="footer">
+                                <p:commandButton  update=":makepayments:main_panel," icon="pi pi-print" onclick="PF('dlg3').show()" style="width: 10rem; font-size: smaller" value="print"  />
+
+                            </f:facet>
+                        </p:dataTable> 
+                    </div>
+                </div>
+                <p:commandButton value="Back"  action="#{accountsBean.back()}" />
+                <p:dialog  widgetVar="dlg3" height="500"  width="60%" showEffect="fade">
+                    <f:facet name="footer">
+                        <p:commandButton type="button" value="Cancle" onclick="PF('dlg3').hide()" style="width: 5rem; font-size: smaller" />
+                        <p:commandButton value="Print" type="button" icon="pi pi-print" style="width: 5rem; font-size: smaller">
+                            <p:printer target="main_panel"/>
+                        </p:commandButton>
+                    </f:facet>
+                    <p:panel id="main_panel" >
+                        <h:panelGrid width="100%" columns="1" style="text-align: center; font-family: sans-serif; font-size: 23px; font-weight: bolder">
+                            <p:outputLabel value="General Receipt" ></p:outputLabel>
+                        </h:panelGrid>
+                        <h:panelGrid columns="3" width="100%"  style="text-align: left; font-family: sans-serif; font-size: 13px; font-weight: normal">
+                            <h:panelGrid columns="2">
+                                <p:outputLabel style="font-weight: bold" value="Name:"></p:outputLabel>
+                                <p:outputLabel style="text-decoration: underline;text-decoration-style: dotted" value="#{accountsBean.patient_view.fullname}" ></p:outputLabel>
+                            </h:panelGrid>
+
+                            <h:panelGrid columns="2">
+                                <p:outputLabel style="font-weight: bold" value="OPD No: "></p:outputLabel>
+                                <p:outputLabel style="text-decoration: underline;text-decoration-style: dotted" value="#{accountsBean.patient_view.memberId}" ></p:outputLabel>
+                            </h:panelGrid>
+
+
+                            <h:panelGrid columns="2">
+                                <p:outputLabel style="font-weight: bold" value="Age:"></p:outputLabel>
+                                <p:outputLabel style="text-decoration: underline;text-decoration-style: dotted" value="#{accountsBean.patient_view.age}" ></p:outputLabel>
+                            </h:panelGrid>
+                            <h:panelGrid columns="2">
+                                <p:outputLabel style="font-weight: bold" value="Gender:"></p:outputLabel>
+                                <p:outputLabel style="text-decoration: underline;text-decoration-style: dotted" value="#{accountsBean.patient_view.memberGender}" ></p:outputLabel>
+                            </h:panelGrid>
+                            <h:panelGrid columns="2">
+                                <p:outputLabel style="font-weight: bold" value="Address:"></p:outputLabel>
+                                <p:outputLabel style="text-decoration: underline;text-decoration-style: dotted" value="#{accountsBean.patient_view.subcounty},  #{accountsBean.patient_view.parish} , #{accountsBean.patient_view.village}" ></p:outputLabel>
+                            </h:panelGrid>
+                        </h:panelGrid>
+                        <h:panelGrid columns="2" width="100%" style="text-align: left; font-family: sans-serif; font-size: 13px; font-weight: normal">
+                            <h:panelGrid columns="2">
+                                <p:outputLabel style="font-weight: bold" value="Ward/Clinic:"></p:outputLabel>
+                                <p:outputLabel style="text-decoration: underline;text-decoration-style: dotted" value="OPD" ></p:outputLabel>
+                            </h:panelGrid>
+                            <h:panelGrid columns="2">
+                                <p:outputLabel style="font-weight: bold" value="Accountant:"></p:outputLabel>
+                                <p:outputLabel style="text-decoration: underline;text-decoration-style: dotted" value="#{accountsBean.dynamicname('FullName', 'users', 'UID', appMenu.userid)}" ></p:outputLabel>
+                         </h:panelGrid>
+
+                        </h:panelGrid>
+
+                        <br/>
+
+                        <h:panelGrid columns="1"   style="text-align: left; font-family: sans-serif; font-size: smaller; font-wpeight: normal; width: 100%;">
+                            <p:dataTable  value="#{accountsBean.accounts_get_payments_view()}"                              
+                                          paginator="false" rows="12" paginatorPosition="bottom" var="pres" style="width: 100%;"
+                                          emptyMessage="No Payments Have Been Made ">
+
+                                <p:column headerText="No" styleClass="tblcol6">  
+                                    #{pres.number} 
+                                </p:column> 
+                                <p:column headerText="Service" styleClass="tblcol6">  
+                                    #{pres.operation} 
+                                </p:column>
+
+                                <p:column headerText="Amount" styleClass="tblcol6">  
+                                    #{pres.amount} 
+                                </p:column>
+
+                            </p:dataTable> 
+
+                        </h:panelGrid>
+                        <h:panelGrid columns="2" width="100%" style="text-align: left; font-family: sans-serif; font-size: 13px; font-weight: normal">
+                            <p:outputLabel style="font-weight: normal" value="Accountant signature:......................................................................................"></p:outputLabel>
+                            <p:outputLabel style="font-weight: normal" value="Date:.................................."></p:outputLabel>
+
+                        </h:panelGrid>
+                        <h:panelGrid columns="2" style="float: top; text-align: left; font-family: sans-serif; font-size: smaller; font-weight: normal;width: 100%;">
+                            <p:outputLabel style="font-weight: normal" value="Note: *invalid without An Organization stamp"/>
+                            <p:outputLabel style="font-style: italic; " value="This Receipt Must be signed  by the issuing Accountant"/>
+
+                        </h:panelGrid>
+
+                    </p:panel>
+
+                </p:dialog>
+            </h:form>
+        </div>
+
+    </ui:define>
+</ui:composition>

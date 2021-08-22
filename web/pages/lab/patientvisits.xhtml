@@ -1,0 +1,58 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
+
+   
+    <ui:define name="content">
+
+        <div class="card">
+
+            <h:form>
+                     <p:dataTable id="pendingtasks" var="pending" value="#{laboratoryBean.laboratory_get_completed_tasks(appMenu.userid)}" 
+                                  paginator="true" rows="10"
+                     paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                     currentPageReportTemplate="{startRecord}-{endRecord} of {totalRecords} records"
+                             rowsPerPageTemplate="5,10,100,200,500,1000,{ShowAll|'All'}" style=" background-color: #f7f7f7;width: 100%;" >
+
+                        <p:column headerText="Lab ID" styleClass="tblcol2" >  
+                            #{pending.lab_id} 
+                        </p:column>
+
+                         <p:column headerText="Patient ID" filterBy="#{pending.patient_Id}" styleClass="tblcol2" >  
+                            #{pending.patient_Id}
+                        </p:column>  
+
+                        <p:column headerText="Patient Name" filterBy="#{pending.patient_name}" styleClass="tblcol5" >  
+                            #{pending.patient_name}
+                        </p:column>  
+
+                        <p:column headerText="Age" styleClass="tblcol1" >  
+                            #{pending.patient_current_age} 
+                        </p:column>  
+
+                        <p:column headerText="Gender" styleClass="tblcol2" >  
+                            #{pending.gender}
+                        </p:column> 
+
+                        <p:column headerText="Priority" styleClass="tblcol1" >  
+                            #{pending.urgency}
+                        </p:column>
+
+                      
+
+                        <p:column styleClass="tblcol2" >  
+                            <p:commandButton id="right" styleClass="rounded-button ui-button-success ui-button-outlined" icon="pi pi-search-plus" action="#{laboratoryBean.laboratory_get_selected_task_report(pending.task_Id,appMenu.userid,pending.lab_id,pending.forward_to)}"/>
+                              
+                            <p:tooltip for="right" value="View Details" position="right"/>
+                        </p:column>
+
+                    </p:dataTable>
+
+
+             
+                <p:growl id="notification" sticky="true"/>
+              
+            </h:form>
+        </div>
+
+    </ui:define>
+</ui:composition>

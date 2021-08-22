@@ -1,114 +1,87 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
 
+    <ui:define name="head">
+        <style type="text/css">
+            .graycat
+            {
+                background-color:gray !important ;
+                color: yellow !important;
+            }
+            .greencat
+            {
+                background-color:green !important ;
+                color: white !important;
+            }
+            .redcat
+            {
+                background-color:red !important ;
+                color:whitesmoke !important;
+            }
+            .yellowcat {
+                background-color: yellow !important;
+            }
+            .bluecat {
+                background-color: blue !important;
+                color: yellow !important;
+            }
+            .orangecat {
+                background-color: orange !important;
+            }
+        </style>
+    </ui:define>
     <ui:define name="content">
 
         <div class="card">
-   
-            <h:form>
-                 
-        <p:menubar>
-            <p:submenu label="File" icon="pi pi-fw pi-file">
-                <p:submenu label="New" icon="pi pi-fw pi-plus">
-                    <p:menuitem value="Bookmark" icon="pi pi-fw pi-bookmark"/>
-                    <p:menuitem value="Video" icon="pi pi-fw pi-video"/>
-                </p:submenu>
-                <p:menuitem value="Delete" icon="pi pi-fw pi-trash"/>
-                <p:divider />
-                <p:menuitem value="Export" icon="pi pi-fw pi-external-link"/>
-            </p:submenu>
 
-            <p:submenu label="Edit" icon="pi pi-fw pi-pencil">
-                <p:menuitem value="Left" icon="pi pi-fw pi-align-left"/>
-                <p:menuitem value="Right" icon="pi pi-fw pi-align-right"/>
-                <p:menuitem value="Center" icon="pi pi-fw pi-align-center"/>
-                <p:menuitem value="Justify" icon="pi pi-fw pi-align-justify"/>
-            </p:submenu>
+            <h:form id="accountform">
 
-            <p:submenu label="Users" icon="pi pi-fw pi-user">
-                <p:menuitem value="New" icon="pi pi-fw pi-user-plus"/>
-                <p:menuitem value="Delete" icon="pi pi-fw pi-user-minus"/>
-                <p:submenu label="Search" icon="pi pi-fw pi-users">
-                    <p:submenu label="Filter" icon="pi pi-fw pi-filter">
-                        <p:menuitem value="Print" icon="pi pi-fw pi-print"/>
-                    </p:submenu>
-                    <p:menuitem value="List" icon="pi pi-fw pi-bars"/>
-                </p:submenu>
-            </p:submenu>
+                <div class="card">
+                    <p:dataTable id="pendingtasks" var="pendingtask"  value="#{accountsBean.accounts_get_forwaded_jobs(appMenu.userid)}"  
+                                 paginator="true" rows="10"
+                                 paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                                 currentPageReportTemplate="{startRecord}-{endRecord} of {totalRecords} records"
+                                 rowsPerPageTemplate="5,10,100,200,500,1000,{ShowAll|'All'}" rowStyleClass="#{pendingtask.color_code eq 0 ? 'graycat' : null}#{pendingtask.color_code eq 1 ? 'greencat' : null}#{pendingtask.color_code eq 2 ? 'redcat' : null}#{pendingtask.color_code eq 3 ? 'yellowcat' : null}#{pendingtask.color_code eq 4 ? 'bluecat' : null}#{pendingtask.color_code eq 5 ? 'orangecat' : null}" >
 
-            <p:submenu label="Events" icon="pi pi-fw pi-calendar">
-                <p:submenu label="Edit" icon="pi pi-fw pi-pencil">
-                    <p:menuitem value="Save" icon="pi pi-fw pi-calendar-plus"/>
-                    <p:menuitem value="Delete" icon="pi pi-fw pi-calendar-minus"/>
-                </p:submenu>
-                <p:submenu label="Archieve" icon="pi pi-fw pi-calendar-times">
-                    <p:menuitem value="Remove" icon="pi pi-fw pi-calendar-minus"/>
-                </p:submenu>
-            </p:submenu>
+                        <p:column headerText="Patient ID" styleClass="tblcol2" filterBy="#{pendingtask.patient_id}" filterFunction="#{dynamicFunctionsBean.filterByName}">  
+                            #{pendingtask.patient_id}
+                        </p:column>  
 
-            <p:divider layout="vertical"/>
+                        <p:column footerText="Patient Name" styleClass="tblcol6" filterBy="#{pendingtask.patient_name}" filterFunction="#{dynamicFunctionsBean.filterByName}">  
 
-            <p:menuitem value="Quit" icon="pi pi-fw pi-power-off"/>
+                            <f:facet name="header">  
+                                <h:outputText value="Patient Name" />  
+                            </f:facet>
+                            <h:outputText value="#{pendingtask.patient_name}" />
+                        </p:column>  
 
-            <f:facet name="options">
-                <div class="ui-input-icon-left p-mr-2">
-                    <i class="pi pi-fw pi-search" />
-                    <p:inputText placeholder="Search"/>
+                        <p:column footerText="Age" styleClass="tblcol2">  
+                            <f:facet name="header">  
+                                <h:outputText value="Age" />  
+                            </f:facet>
+                            <h:outputText value="#{pendingtask.age} " />
+                        </p:column>  
+
+                        <p:column footerText="Gender" styleClass="tblcol3">  
+                            <f:facet name="header">  
+                                <h:outputText value="Gender" />  
+                            </f:facet>
+                            <h:outputText value="#{pendingtask.gender}" />
+
+                        </p:column>  
+
+
+                        <p:column styleClass="tblcol2" >  
+                            <p:commandButton id="right" update=":accountform:notification" styleClass="rounded-button ui-button-success ui-button-outlined" icon="pi pi-money-bill" action="#{accountsBean.accounts_get_selected_task(pendingtask.track_id,appMenu.userid)}"/>
+                            <p:tooltip for="right" value="Make Payments" position="right"/>
+                        </p:column>
+
+                    </p:dataTable>
+
+                    <p:messages id="notification"/>
                 </div>
-                <!--<p:button value="Logout" icon="pi pi-fw pi-sign-out" styleClass="ui-button-info"/>-->
-            </f:facet>
-        </p:menubar>
-    
-                <h5 class="p-mt-0">Basic</h5>
-                <p:panel id="pnl" header="New User">
-                    <h:panelGrid columns="3" cellpadding="7">
-                        <h:outputLabel for="firstname" value="Firstname: *"/>
-                        <p:inputText id="firstname"  required="true" label="Firstname">
-                            <f:validateLength minimum="2"/>
-                        </p:inputText>
-                        <p:message for="firstname"/>
 
-                        <h:outputLabel for="lastname" value="Lastname: *"/>
-                        <p:inputText id="lastname"  required="true" label="Lastname"/>
-                        <p:message for="lastname"/>
-                    </h:panelGrid>
-
-                    <p:commandButton id="saveBtn" value="Save" icon="pi pi-check"   styleClass="p-mt-3" />
-                </p:panel>
-
-                <p:blockUI block="pnl" trigger="saveBtn"/>
-
-                <h5>Custom Content</h5>
-
-
-
-                <h5>Client Side API</h5>
-                <p:accordionPanel id="accordion" multiple="true">
-                    <p:tab title="Header I">
-                        <h:panelGrid columns="2" cellpadding="10">
-                            <h:outputText
-                                value="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."/>
-                        </h:panelGrid>
-                    </p:tab>
-                    <p:tab title="Header II">
-                        <h:panelGrid columns="2" cellpadding="10">
-                            <h:outputText
-                                value="Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Consectetur, adipisci velit, sed quia non numquam eius modi."/>
-                        </h:panelGrid>
-                    </p:tab>
-                    <p:tab title="Header III">
-                        <h:panelGrid columns="2" cellpadding="10">
-                            <h:outputText
-                                value="At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus."/>
-                        </h:panelGrid>
-                    </p:tab>
-                </p:accordionPanel>
-
-                <p:commandButton id="pnlBtn" value="Block Panel" type="button" onclick="PF('bui').show()" styleClass="p-mt-5 p-mr-2" />
-                <p:commandButton id="pnlBtn2" value="Unblock Panel" type="button" onclick="PF('bui').hide()" styleClass="p-mt-5 ui-button-outlined" />
-
-                <p:blockUI block="accordion" widgetVar="bui"/>
-
+                <p:poll interval="10" update="pendingtasks" />
             </h:form>
         </div>
 

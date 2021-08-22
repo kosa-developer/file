@@ -9,6 +9,7 @@ public class Patient implements Serializable {
     private String memberId;
     private String householdId;
     private String fullname;
+    private Date DOB;
     private Integer age;
     private Integer age_months;
     private Integer age_days;
@@ -185,6 +186,14 @@ public class Patient implements Serializable {
 
     public void setTrack_id(String track_id) {
         this.track_id = track_id;
+    }
+
+    public Date getDOB() {
+        return DOB;
+    }
+
+    public void setDOB(Date DOB) {
+        this.DOB = DOB;
     }
     
 

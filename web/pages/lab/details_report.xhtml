@@ -177,8 +177,8 @@
 
             </div>
             <p:panel id="pnlaction" style="margin-bottom:5px;">
-                <p:commandButton value="Carry Out The Requested Laboratory Tests" action="#{laboratoryBean.laboratory_navigate_to()}"/>
-                <p:commandButton value="Cancel" action="#{laboratoryBean.laboratory_unlock_task()}"/>
+                <p:commandButton value="View Laboratory Results " action="#{laboratoryBean.laboratory_navigate_to_results()}"/>
+                 <p:commandButton value="Cancel" action="#{laboratoryBean.laboratory_unlock_task_report()}"/>
             </p:panel>
             <p:growl id="notification" sticky="true"/>
         </h:form>  

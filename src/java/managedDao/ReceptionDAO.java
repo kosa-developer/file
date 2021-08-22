@@ -359,7 +359,7 @@ public class ReceptionDAO
         }
     }
     
-    public static boolean Reception_Accounts_Pending(String trackID, boolean skipped, String forward_to, boolean locked, String user)
+    public static boolean Reception_Accounts_Pending(String trackID, boolean skipped, boolean locked, String user,String operation,Integer ammount)
             throws SQLException, ClassNotFoundException, PropertyVetoException, Exception {
         
         try {
@@ -370,16 +370,15 @@ public class ReceptionDAO
             
             con=Apache_Connectionpool.getInstance().getConnection();
             
-            PreparedStatement ps = con.prepareStatement("insert into accounts_pending(Track_Id,Operation,Payable_Amount,Forward_To,Skipped_Accounts,Record_Time,Locked,Staff_From) values(?,?,?,?,?,?,?,?)");
+            PreparedStatement ps = con.prepareStatement("insert into accounts_pending(Track_Id,Operation,Payable_Amount,Skipped_Accounts,Record_Time,Locked,Staff_From) values(?,?,?,?,?,?,?)");
             
             ps.setString(1, trackID);
-            ps.setString(2, "Normal Payment");
-            ps.setInt(3, 0);
-            ps.setString(4, forward_to);
-            ps.setBoolean(5, skipped);
-            ps.setString(6, dateFormat.format(date));
-            ps.setBoolean(7, locked);
-            ps.setString(8, user);
+            ps.setString(2, operation);
+            ps.setInt(3, ammount);
+            ps.setBoolean(4, skipped);
+            ps.setString(5, dateFormat.format(date));
+            ps.setBoolean(6, locked);
+            ps.setString(7, user);
             
             ps.executeUpdate();
             
@@ -535,7 +534,7 @@ public class ReceptionDAO
             con=Apache_Connectionpool.getInstance().getConnection();
             date = new Date();
             
-            stmt = con.prepareStatement("select f.Patient_Id,f.Patient_Name,f.Gender,TIMESTAMPDIFF(YEAR, f.DOB, CURDATE()) AS Age,f.Age_Days,f.Age_Months,f.Weight_For_Height,f.Weight_for_age,f.Height_for_age,f.Village_Name,f.Subcounty_Name,f.District,f.Member,f.Subscription_Expired from frontdesk_tasks f where f.Track_Id=?");
+            stmt = con.prepareStatement("select f.Patient_Id,f.Patient_Name,f.Gender,f.DOB,TIMESTAMPDIFF(YEAR, f.DOB, CURDATE()) AS Age,f.Age_Days,f.Age_Months,f.Weight_For_Height,f.Weight_for_age,f.Height_for_age,f.Village_Name,f.Subcounty_Name,f.District,f.Member,f.Subscription_Expired from frontdesk_tasks f where f.Track_Id=?");
             stmt.setString(1, task_id);
             
             ResultSet rs = stmt.executeQuery();
@@ -555,6 +554,7 @@ public class ReceptionDAO
                 patient.setSubscription_exp(String.valueOf(rs.getBoolean("Subscription_Expired")).toUpperCase());
                 patient.setWeight_for_age(rs.getString("Weight_for_age"));
                 patient.setHeight_for_age(rs.getString("Height_for_age"));
+                patient.setDOB(rs.getDate("DOB"));
                 patient.setTrack_id(task_id);
                 con.close();
                 return patient;

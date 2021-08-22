@@ -71,8 +71,11 @@
                         </p:column>
 
                         <p:column styleClass="tblcol2" >  
-                            <h:commandLink value="View Request" style="font-family: 'Tangerine', serif; font-weight: bold; color: blue; width: 10%;" action="#{laboratoryBean.laboratory_get_selected_task(pending.task_Id,appMenu.userid,pending.lab_id,pending.forward_to)}"/>
-                             </p:column>
+                          
+                            <p:commandButton id="right" styleClass="rounded-button ui-button-primary ui-button-outlined" icon="pi pi-search-plus" action="#{laboratoryBean.laboratory_get_selected_task(pending.task_Id,appMenu.userid,pending.lab_id,pending.forward_to)}"/>
+                              
+                            <p:tooltip for="right" value="View Details" position="right"/>
+                        </p:column>
 
                     </p:dataTable>
 

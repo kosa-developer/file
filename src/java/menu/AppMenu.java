@@ -162,8 +162,6 @@ public class AppMenu {
         this.xray = false;
         this.surgery = false;
 
-     
-
         try {
             HttpSession session = SessionUtils.getSession();
             this.department = session.getAttribute("department").toString();
@@ -173,7 +171,7 @@ public class AppMenu {
 
         }
 
-           if (this.department.equals("Systems Developer")) {
+        if (this.department.equals("Systems Developer")) {
             this.admin = true;
             this.triage = true;
             this.clinician = true;
@@ -184,20 +182,21 @@ public class AppMenu {
             this.ward = true;
             this.xray = true;
             this.surgery = true;
-        }else{
-        for (int i = 0; i < privillage_list.size(); i++) {
-            this.admin = privillage_list.get(i).getDropdownValue().equals("Administration") ? true : this.admin;
-            this.triage = privillage_list.get(i).getDropdownValue().equals("Triage") ? true : this.triage;
-            this.clinician = privillage_list.get(i).getDropdownValue().equals("Clinician") ? true : this.clinician;
-            this.account = privillage_list.get(i).getDropdownValue().equals("Account") ? true : this.account;
-            this.lab = privillage_list.get(i).getDropdownValue().equals("Laboratory") ? true : this.lab;
-            this.dispens = privillage_list.get(i).getDropdownValue().equals("Dispensary") ? true : this.dispens;
-            this.pharm = privillage_list.get(i).getDropdownValue().equals("Pharmacy") ? true : this.pharm;
-            this.ward = privillage_list.get(i).getDropdownValue().equals("Ward") ? true : this.ward;
-            this.xray = privillage_list.get(i).getDropdownValue().equals("Xray") ? true : this.xray;
-            this.surgery = privillage_list.get(i).getDropdownValue().equals("Surgery") ? true : this.surgery;
+        } else {
+            for (int i = 0; i < privillage_list.size(); i++) {
+                this.admin = privillage_list.get(i).getDropdownValue().equals("Administration") ? true : this.admin;
+                this.triage = privillage_list.get(i).getDropdownValue().equals("Triage") ? true : this.triage;
+                this.clinician = privillage_list.get(i).getDropdownValue().equals("Clinician") ? true : this.clinician;
+                this.account = privillage_list.get(i).getDropdownValue().equals("Account") ? true : this.account;
+                this.lab = privillage_list.get(i).getDropdownValue().equals("Laboratory") ? true : this.lab;
+                this.dispens = privillage_list.get(i).getDropdownValue().equals("Dispensary") ? true : this.dispens;
+                this.pharm = privillage_list.get(i).getDropdownValue().equals("Pharmacy") ? true : this.pharm;
+                this.ward = privillage_list.get(i).getDropdownValue().equals("Ward") ? true : this.ward;
+                this.xray = privillage_list.get(i).getDropdownValue().equals("Xray") ? true : this.xray;
+                this.surgery = privillage_list.get(i).getDropdownValue().equals("Surgery") ? true : this.surgery;
 
-        }}
+            }
+        }
         menuCategories = new ArrayList<>();
         menuItems = new ArrayList<>();
 
@@ -248,16 +247,22 @@ public class AppMenu {
         }
 
         //accounts
+        
         if (this.account) {
+        
             List<MenuItem> AccountsMenuItems = new ArrayList<>();
-            AccountsMenuItems.add(new MenuItem("Incoming patients", "/pages/accounts/incoming"));
-            AccountsMenuItems.add(new MenuItem("Receipting", "/pages/accounts/receipting"));
-            List<MenuItem> account_reports = new ArrayList<>();
-            account_reports.add(new MenuItem("previous receipts", "/pages/accounts/previous_receipt"));
-            account_reports.add(new MenuItem("Payment Reports ", "/pages/accounts/payment_reports"));
-            AccountsMenuItems.add(new MenuItem("Account reports", account_reports));
+            AccountsMenuItems.add(new MenuItem("Receipting", "/pages/accounts/incoming"));
             menuCategories.add(new MenuCategory("Accounts", AccountsMenuItems));
         }
+//        if (this.account) {
+//            List<MenuItem> AccountsMenuItems = new ArrayList<>();
+//            AccountsMenuItems.add(new MenuItem("Receipting", "/pages/accounts/incoming"));
+//            List<MenuItem> account_reports = new ArrayList<>();
+//            account_reports.add(new MenuItem("previous receipts", "/pages/accounts/previous_receipt"));
+//            account_reports.add(new MenuItem("Payment Reports ", "/pages/accounts/payment_reports"));
+//            AccountsMenuItems.add(new MenuItem("Account reports", account_reports));
+//            menuCategories.add(new MenuCategory("Accounts", AccountsMenuItems));
+//        }
         //Laboratory & Diagnostics
         if (this.lab) {
             List<MenuItem> labMenuItems = new ArrayList<>();
@@ -268,7 +273,7 @@ public class AppMenu {
             sandries.add(new MenuItem("Stock at hand ", "/pages/lab/stock"));
             labMenuItems.add(new MenuItem("Sandries", sandries));
             List<MenuItem> lab_reports = new ArrayList<>();
-            lab_reports.add(new MenuItem("Laboratory Attendance ", "/pages/lab/attendance"));
+            lab_reports.add(new MenuItem("Laboratory Attendance", "/pages/lab/patientvisits"));
             lab_reports.add(new MenuItem("Laboratory Register ", "/pages/lab/register"));
             labMenuItems.add(new MenuItem("Reports", lab_reports));
             menuCategories.add(new MenuCategory("Laboratory & Diagnostics", labMenuItems));

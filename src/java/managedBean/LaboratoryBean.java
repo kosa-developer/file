@@ -8,6 +8,8 @@ import managedDao.ReceptionDAO;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.Date;
 import java.util.List;
 import javax.faces.application.FacesMessage;
@@ -25,6 +27,7 @@ import managedModal.SpecificTest;
 import managedModal.SubTest;
 import managedModal.TestCategory;
 import managedModal.TestName;
+import managedModal.testresults;
 
 @ManagedBean(name = "laboratoryBean")
 @SessionScoped
@@ -40,15 +43,14 @@ public class LaboratoryBean
     private String task_id;
     private boolean assigned = false;
     private List<LabTest> tests_requested;
+    private List<testresults> tablesubtest;
     private List<LabTest> tests_samples_taken;
     private LabTest selected_sample_taken;
     private LabTest selected_lab_test;
     private LabTest[] selected_lab_tests;
     private String sample_taken_msg;
-    private String requested_test_result;
     private String note;
     private String test_sample;
-    private String test_comment;
     private String expected_result_range;
     private String task_urgency;
     private Date report_date;
@@ -62,7 +64,6 @@ public class LaboratoryBean
     private Integer confirm_specific_test_id;
     private Integer confirm_sub_test_id;
     private Integer sub_test_id;
-    private Integer expected_result_id;
     private List<Notes> clinical_notes;
     private String lab_Id;
     private boolean test_started;
@@ -161,22 +162,12 @@ public class LaboratoryBean
         this.confirm_result_id = confirm_result_id;
     }
 
-    private String numerical_result;
-
     public Integer getConfirm_sub_test_id() {
         return confirm_sub_test_id;
     }
 
     public void setConfirm_sub_test_id(Integer confirm_sub_test_id) {
         this.confirm_sub_test_id = confirm_sub_test_id;
-    }
-
-    public String getNumerical_result() {
-        return numerical_result;
-    }
-
-    public void setNumerical_result(String numerical_result) {
-        this.numerical_result = numerical_result;
     }
 
     public boolean isResult_select() {
@@ -235,8 +226,6 @@ public class LaboratoryBean
     public void setSelected_sample_taken(LabTest selected_sample_taken) {
         this.selected_sample_taken = selected_sample_taken;
     }
-
-    
 
     public LabTest[] getSelected_lab_tests() {
         return selected_lab_tests;
@@ -342,14 +331,6 @@ public class LaboratoryBean
         this.sub_test_id = sub_test_id;
     }
 
-    public Integer getExpected_result_id() {
-        return expected_result_id;
-    }
-
-    public void setExpected_result_id(Integer expected_result_id) {
-        this.expected_result_id = expected_result_id;
-    }
-
     public Date getReport_date() {
         return report_date;
     }
@@ -374,28 +355,12 @@ public class LaboratoryBean
         this.test_sample = test_sample;
     }
 
-    public String getTest_comment() {
-        return test_comment;
-    }
-
-    public void setTest_comment(String test_comment) {
-        this.test_comment = test_comment;
-    }
-
     public String getNote() {
         return note;
     }
 
     public void setNote(String note) {
         this.note = note;
-    }
-
-    public String getRequested_test_result() {
-        return this.requested_test_result;
-    }
-
-    public void setRequested_test_result(String requested_test_result) {
-        this.requested_test_result = requested_test_result;
     }
 
     public LabTest getSelected_lab_test() {
@@ -469,8 +434,16 @@ public class LaboratoryBean
     public void setTest_normal_value(String test_normal_value) {
         this.test_normal_value = test_normal_value;
     }
-//constructor laboratoryBean. initialisation of issential variables that activates system behavior in laboratory screen
 
+    public List<testresults> getTablesubtest() {
+        return tablesubtest;
+    }
+
+    public void setTablesubtest(List<testresults> tablesubtest) {
+        this.tablesubtest = tablesubtest;
+    }
+
+//constructor laboratoryBean. initialisation of issential variables that activates system behavior in laboratory screen
     public LaboratoryBean() {
         this.task_id = "";
         task_urgency = "";
@@ -505,15 +478,21 @@ public class LaboratoryBean
         return null;
     }
 
+    public List<ReceptionTask> laboratory_get_completed_tasks(String user_id) {
+        try {
+            return LaboratoryDAO.Laboratory_Get_Completed(user_id);
+        } catch (Exception ex) {
+            System.err.println("Error Message: " + ex.getMessage());
+        }
+        return null;
+    }
+
     /*laboratory get selected task method which returns a screen containing details of a patient to be tested.
     it also returns the privillage of the logged in user to determine which patients to be seen
     
      */
-  
     public String laboratory_get_selected_task(String task_id, String user_id, String lab_id, String forward_to) {
-        
-            
-            
+
         try {
             this.userprivillage = "LOCAL USER";
 
@@ -548,11 +527,30 @@ public class LaboratoryBean
                 this.assigned = true;
 
                 FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "This Task Is Now LOCKED and Assigned To You.", "Successful"));
-           } else {
+            } else {
                 this.assigned = false;
                 FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, "An Error Occurred.Task Could Not Be Assigned To You.", "Failure"));
             }
             return "/pages/lab/details.xhtml";
+        } catch (Exception ex) {
+            System.err.println("laboratoryBean Error: Method: laboratory_get_selected_task " + ex.getMessage());
+        }
+        return null;
+    }
+
+    public String laboratory_get_selected_task_report(String task_id, String user_id, String lab_id, String forward_to) {
+
+        try {
+
+            this.task_id = task_id;
+            task_urgency = LaboratoryDAO.Laboratory_Task_Get_Urgency(task_id);
+            this.lab_Id = lab_id;
+            this.forward_to = forward_to;
+
+            this.patient_view = ReceptionDAO.Reception_Retrieve_Patient_Details(task_id);
+            this.reception_info_view = ReceptionDAO.Reception_Get_Reception_Info(task_id);
+
+            return "/pages/lab/details_report.xhtml";
         } catch (Exception ex) {
             System.err.println("laboratoryBean Error: Method: laboratory_get_selected_task " + ex.getMessage());
         }
@@ -565,18 +563,31 @@ public class LaboratoryBean
      */
     public String laboratory_navigate_to() {
         try {
+            this.specific_tests = null;
+            this.sub_tests = null;
             laboratory_get_requested_tests();
-            return "/pages/lab/starttests.xhtml";
+            return "/pages/lab/testrequests.xhtml";
         } catch (Exception ex) {
             System.out.println("Error Message: " + ex.getMessage());
         }
         return null;
     }
 
+    public String laboratory_navigate_to_results() {
+        return "/pages/lab/testrequests_report.xhtml";
+
+    }
+
+    public String back() {
+
+        return "/pages/lab/patientvisits.xhtml";
+
+    }
+
     /*   
     laboratory_navigate_to method with one agument return_val returns the screen containg clinical notes
     it also calls a method laboratory_get_clinical_notes()that returns laboratory clinical notes
-    */
+     */
 //    public String laboratory_navigate_to(String return_val) {
 //        try {
 //            if (return_val.equals("viewnotes")) {
@@ -591,7 +602,7 @@ public class LaboratoryBean
 
     /*
     laboratory_unlock_task() method is responsible for unlocking patients to be seen by other users on laboratory screens or other screens
-    */
+     */
     public String laboratory_unlock_task() {
         try {
             if (LaboratoryDAO.Laboratory_Task_Lock(this.task_id, false, "")) {
@@ -609,10 +620,16 @@ public class LaboratoryBean
         return null;
     }
 
+    public String laboratory_unlock_task_report() {
+        return "/pages/lab/patientvisits.xhtml";
+
+    }
+
     // </editor-fold>    
     // <editor-fold defaultstate="collapsed" desc="Submit test samples">           
     public void laboratory_get_requested_tests() {
         try {
+            tests_samples_taken = LaboratoryDAO.Laboratory_Get_Tests_Samples_Taken(this.task_id);
             this.tests_requested = LaboratoryDAO.Laboratory_Get_Tests_Requested(this.task_id);
             System.out.println("tests_requested : " + tests_requested.size());
 
@@ -630,24 +647,21 @@ public class LaboratoryBean
     /*
     laboratory_samples_taken() method submits the time and test request to confirm thatsomeone is carryingout the very sample
     it also updates the requested status to sample taken
-    */
-    
-        public void laboratory_samples_taken() {
-        
+     */
+    public void laboratory_samples_taken() {
+
         try {
-                
 
             if (selected_lab_tests.length > 0) {
-                       FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, ""+selected_lab_tests[0].getRequest_id(), "Failure"));
-         
-                
-////                for (int i = 0; i < selected_lab_tests.length; i++) {
-////                    if (LaboratoryDAO.Laboratory_Add_Test_Duration_Start(this.task_id, this.selected_lab_tests[i].getRequest_id())) {
-////                        LaboratoryDAO.Laboratory_Update_Requested_Test_Status("Sample Taken", this.selected_lab_tests[i].getRequest_id());
-////                    }
-////                }
-////                laboratory_get_requested_tests();
-//                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Start Time For Test Samples Saved Successfully", "Success"));
+
+                for (int i = 0; i < selected_lab_tests.length; i++) {
+
+                    if (LaboratoryDAO.Laboratory_Add_Test_Duration_Start(this.task_id, this.selected_lab_tests[i].getRequest_id())) {
+                        LaboratoryDAO.Laboratory_Update_Requested_Test_Status("Sample Taken", this.selected_lab_tests[i].getRequest_id());
+                    }
+                }
+                laboratory_get_requested_tests();
+                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Start Time For Test Samples Saved Successfully", "Success"));
             } else {
                 FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "NO Samples Selected", "Failure"));
             }
@@ -667,20 +681,21 @@ public class LaboratoryBean
              */
         } catch (Exception ex) {
             System.err.println("Error in laboratory_samples_taken: " + ex.getMessage());
-                         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "" + ex.getMessage(), "Success"));
- 
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "" + ex.getMessage(), "Success"));
+
         }
 
     }
-/*
+
+    /*
     laboratory_submitted_test_results() method returns the already submited tests samples on testresult screen for result
     recordings
-    */
+     */
     public String laboratory_submitted_test_results() {
 
         try {
             tests_samples_taken = LaboratoryDAO.Laboratory_Get_Tests_Samples_Taken(this.task_id);
-             return "/pages/lab/testresults.xhtml";
+            return "/pages/lab/testresults.xhtml";
         } catch (Exception ex) {
             System.err.println("Error in: laboratory_submit_test_results:  " + ex.getMessage());
             return null;
@@ -691,6 +706,7 @@ public class LaboratoryBean
     // </editor-fold>    
     // <editor-fold defaultstate="collapsed" desc="Record & submit test results">            
     public List<SpecificTest> laboratory_get_specific_tests() {
+
         try {
 
             if (selected_sample_taken != null) {
@@ -707,7 +723,7 @@ public class LaboratoryBean
 
     /*
     laboratory_get_sub_tests() method returns subtest corresponding to the selected specific test
-    */
+     */
     public List<SubTest> laboratory_get_sub_tests() {
         try {
             if (specific_test_id != null) {
@@ -724,7 +740,7 @@ public class LaboratoryBean
 
     /*
     laboratory_get_expected_results() method returns expected results basing on the selected subtest
-    */
+     */
     public List<ExpectedResult> laboratory_get_expected_results() {
 
         try {
@@ -745,30 +761,51 @@ public class LaboratoryBean
         }
     }
 
+
     /*
     result_units(Integer sub_test_id, String result) method returns test units and result range  basing on age, gender
-    */
+     */
     public String result_units(Integer sub_test_id, String result) {
         try {
             String agetype, units;
             agetype = "";
             units = "";
-            if (patient_view.getAge_days() >= 0 && patient_view.getAge_days() <= 14 && patient_view.getAge_months() == 0 && patient_view.getAge() == 0) {
+
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+            String yy, mm, dd, date;
+            int patient_age, patient_age_month, patient_age_days;
+            date = format.format(patient_view.getDOB());
+            yy = date.substring(0, 4);
+            mm = date.substring(5, 7);
+            dd = date.substring(8, 10);
+            LocalDate l = LocalDate.of(Integer.parseInt(yy), Integer.parseInt(mm), Integer.parseInt(dd)); //specify year, month, date directly
+            LocalDate now = LocalDate.now(); //gets localDate
+            Period diff = Period.between(l, now); //difference between the dates is calculated
+
+            patient_age = diff.getYears();
+            patient_age_month = diff.getMonths();
+            patient_age_days = diff.getDays();
+            Integer age, month, days;
+            age = patient_age;
+            month = (age <= 0) ? patient_age_month : 0;
+            days = (age <= 0 && month <= 0) ? patient_age_days : 0;
+
+            if (days >= 0 && days <= 14 && month == 0 && age == 0) {
                 agetype = "Neonate F/M";
-            } else if (patient_view.getAge_days() > 14 || patient_view.getAge_months() > 0) {
+            } else if (days > 14 || month > 0) {
                 agetype = "Baby F/M";
-            } else if (patient_view.getAge() > 0) {
-                if (patient_view.getAge() <= 4) {
+            } else if (age > 0) {
+                if (age <= 4) {
                     agetype = "Toddler F/M";
-                } else if (patient_view.getAge() > 4 && patient_view.getAge() <= 14) {
+                } else if (age > 4 && age <= 14) {
                     agetype = "Child F/M";
-                } else if (patient_view.getAge() > 14 && patient_view.getAge() <= 59) {
+                } else if (age > 14 && age <= 59) {
                     if (patient_view.getMemberGender().equals("Male")) {
                         agetype = "Adult Male";
                     } else {
                         agetype = "Adult Female";
                     }
-                } else if (patient_view.getAge() > 59) {
+                } else if (age > 59) {
 
                     if (patient_view.getMemberGender().equals("Male")) {
                         agetype = "Elderly Male";
@@ -797,27 +834,49 @@ public class LaboratoryBean
 
     /* 
     expected_result_range(Integer sub_test_id) method returns the normal ranges of the patient result basing on patient age and gender
-    */
+     */
     public String expected_result_range(Integer sub_test_id) {
+
         try {
             String agetype;
             agetype = "";
-            if (patient_view.getAge_days() >= 0 && patient_view.getAge_days() <= 14 && patient_view.getAge_months() == 0 && patient_view.getAge() == 0) {
+
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+            String yy, mm, dd, date;
+            int patient_age, patient_age_month, patient_age_days;
+            date = format.format(patient_view.getDOB());
+            yy = date.substring(0, 4);
+            mm = date.substring(5, 7);
+            dd = date.substring(8, 10);
+            LocalDate l = LocalDate.of(Integer.parseInt(yy), Integer.parseInt(mm), Integer.parseInt(dd)); //specify year, month, date directly
+            LocalDate now = LocalDate.now(); //gets localDate
+            Period diff = Period.between(l, now); //difference between the dates is calculated
+
+            patient_age = diff.getYears();
+            patient_age_month = diff.getMonths();
+            patient_age_days = diff.getDays();
+
+            Integer age, month, days;
+            age = patient_age;
+            month = (age <= 0) ? patient_age_month : 0;
+            days = (age <= 0 && month <= 0) ? patient_age_days : 0;
+
+            if (days >= 0 && days <= 14 && month == 0 && age == 0) {
                 agetype = "Neonate F/M";
-            } else if (patient_view.getAge_days() > 14 || patient_view.getAge_months() > 0) {
+            } else if (days > 14 || month > 0) {
                 agetype = "Baby F/M";
-            } else if (patient_view.getAge() > 0) {
-                if (patient_view.getAge() <= 4) {
+            } else if (age > 0) {
+                if (age <= 4) {
                     agetype = "Toddler F/M";
-                } else if (patient_view.getAge() > 4 && patient_view.getAge() <= 14) {
+                } else if (age > 4 && age <= 14) {
                     agetype = "Child F/M";
-                } else if (patient_view.getAge() > 14 && patient_view.getAge() <= 59) {
+                } else if (age > 14 && age <= 59) {
                     if (patient_view.getMemberGender().equals("Male")) {
                         agetype = "Adult Male";
                     } else {
                         agetype = "Adult Female";
                     }
-                } else if (patient_view.getAge() > 59) {
+                } else if (age > 59) {
 
                     if (patient_view.getMemberGender().equals("Male")) {
                         agetype = "Elderly Male";
@@ -846,67 +905,85 @@ public class LaboratoryBean
             return null;
         }
     }
-    
+
     /*
     laboratory_add_test_result(String user_id) records patient test results
-    */
-
+     */
     public void laboratory_add_test_result(String user_id) {
+
         try {
             //Check NULL
             if (selected_sample_taken != null) {
-                //Check Duplicity - params: request_id,specific_test_id,sub_testid
-                if (LaboratoryDAO.Laboratory_Check_Requeted_Test_Result(this.selected_sample_taken.getRequest_id(), specific_test_id, sub_test_id)) {
-                    FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "You Have Already Provided Results For This Sub Test!", "Failure"));
-                    this.requested_test_result = "";
-                    this.test_comment = "";
-                } else {
+                if (specific_test_id != 0 && !test_sample.equals("")) {
+                    Integer submitted = 0;
+                    String alredyexits = "", error = "";
+                    for (int i = 0; i < tablesubtest.size(); i++) {
 
-                    if (LaboratoryDAO.Laboratory_testresult(sub_test_id)) {
-                        this.requested_test_result = this.numerical_result;
-                        this.expected_result_id = 113;
-                    }
-                    if (specific_test_id != 0 && sub_test_id != 0 && !test_sample.equalsIgnoreCase("Select Sample")) {
-                        if (LaboratoryDAO.Laboratory_Add_Requeted_Test_Result(this.selected_sample_taken.getRequest_id(), user_id, this.requested_test_result, test_sample, test_comment, specific_test_id, sub_test_id, expected_result_id)) {
-                            if (LaboratoryDAO.Laboratory_Update_Requested_Test_Status("Completed", this.selected_sample_taken.getRequest_id())) {
-//                            laboratory_get_requested_tests();
-                                laboratory_submitted_test_results();
-                                this.requested_test_result = "";
-                                this.test_comment = "";
-                                LaboratoryDAO.Laboratory_Add_Test_Duration_End(this.task_id, this.selected_sample_taken.getRequest_id());
-                                /*
+                        if (LaboratoryDAO.Laboratory_Check_Requeted_Test_Result(this.selected_sample_taken.getRequest_id(), specific_test_id, tablesubtest.get(i).getSub_test_id())) {
+                            alredyexits += "," + tablesubtest.get(i).getSub_test();
+                            tablesubtest.get(i).setRequested_test_result("");
+                            tablesubtest.get(i).setTest_comment("");
+                        } else {
+
+                            if (LaboratoryDAO.Laboratory_testresult(tablesubtest.get(i).getSub_test_id())) {
+                                tablesubtest.get(i).setRequested_test_result("" + tablesubtest.get(i).getNumerical_result());
+                                tablesubtest.get(i).setExpected_result_id(113);
+                            }
+                            if (tablesubtest.get(i).getSub_test_id() != 0) {
+                                if (LaboratoryDAO.Laboratory_Add_Requeted_Test_Result(this.selected_sample_taken.getRequest_id(), user_id, tablesubtest.get(i).getRequested_test_result(), test_sample, tablesubtest.get(i).getTest_comment(), specific_test_id, tablesubtest.get(i).getSub_test_id(), tablesubtest.get(i).getExpected_result_id())) {
+                                    if (LaboratoryDAO.Laboratory_Update_Requested_Test_Status("Pending", this.selected_sample_taken.getRequest_id())) {
+                                        laboratory_get_requested_tests();
+                                        laboratory_submitted_test_results();
+                                        /*
                              if (this.tests_requested.isEmpty()) {
                              FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "All Requested Tests Have Been Carried Out. Please Confirm And Submit Results. Thank You", "Success"));
                              } else {
                              FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Results Added Successfully. Thank You", "Success"));
                              }
-                                 */
+                                         */
+                                        submitted++;
 
-                                if (this.tests_samples_taken.isEmpty()) {
-                                    FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "All Requested Tests Have Been Carried Out. Please Confirm And Submit Results. Thank You", "Success"));
+                                    } else {
+                                       
+                                    }
+                                    Value_reset();
+
                                 } else {
-                                    FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Results Added Successfully. Thank You", "Success"));
+                                   error += tablesubtest.get(i).getSub_test()+","; 
                                 }
-
                             } else {
-                                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Transaction Error.Contact Your Administrator", "Failure"));
+                                error+="Specific Test,Sub Test and Sample Type must be selected";
+                             
                             }
-                            Value_reset();
-                            
-                        } else {
-                            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Transaction Error.Contact Your Administrator", "Failure"));
                         }
-                    } else {
-                        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Specific Test,Sub Test and Sample Type must be selected", "Failure"));
+                    }
+
+                    if (submitted > 0) {
+                        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Results for " + submitted + " Tests have been submitted Successfully. Thank You", "Success"));
 
                     }
+                    if (!error.equals("")) {
+                        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, error+" are missing results, please enter results and try again", "Failure"));
+
+                    }
+                    if (!alredyexits.equals("")) {
+                        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "You Have Already Provided Results For " + alredyexits, "Failure"));
+                    }
+                }else
+                {
+                    FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Specific test and test sample must not be empty", "Failure"));
                 }
+                //Check Duplicity - params: request_id,specific_test_id,sub_testid
+
             } else {
                 FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Please Select the Test For Result Submition", "Failure"));
             }
 
         } catch (Exception ex) {
             System.err.println("Error Message: " + ex.getMessage());
+
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "" + ex.getMessage(), "Failure"));
+
         }
 
     }
@@ -914,29 +991,30 @@ public class LaboratoryBean
     /*
      laboratory_get_performed_tests() method returns performed tests and results which are populated in the table on testrequest
     screen
-    */
+     */
     public List<LabTestResults> laboratory_get_performed_tests() {
+
         try {
+
             return LaboratoryDAO.Laboratory_Get_Performed_Tests(this.task_id);
         } catch (Exception ex) {
             System.err.println("Error Message: " + ex.getMessage());
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "reached" + ex.getMessage(), "Failure"));
+
             return null;
         }
     }
 
     /*
     laboratory_delete_result(Integer result_id) allows the user delete test before forwarding to the countersigning level
-    */
+     */
     public void laboratory_delete_result(Integer result_id) {
         try {
-            if (!LaboratoryDAO.Laboratory_Update_Request_Status(result_id)) {
-                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Transaction Error.Please Contact Your Administrator", "Failure"));
-            } else {
-                LaboratoryDAO.Laboratory_Delete_Result(result_id);
-                this.tests_requested = LaboratoryDAO.Laboratory_Get_Tests_Requested(String.valueOf(this.task_id));
-                LaboratoryDAO.Laboratory_Add_Test_Duration_Delete(this.task_id, this.selected_lab_test.getRequest_id());
-                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Test Result Deleted", "Successful"));
-            }
+
+            LaboratoryDAO.Laboratory_Delete_Result(result_id);
+            this.tests_requested = LaboratoryDAO.Laboratory_Get_Tests_Requested(String.valueOf(this.task_id));
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Test Result Deleted", "Successful"));
+
         } catch (Exception ex) {
             System.out.println("Error Message: laboratory_delete_result: " + ex.getMessage());
         }
@@ -945,7 +1023,7 @@ public class LaboratoryBean
     /*
     laboratory_submit_test_results(String user_id)  methed submits test results to the database 
     it also contains of a dynamic function for checking if the very result already exisits in tghe database to avoid double insertion
-    */
+     */
     public String laboratory_submit_test_results(String user_id) {
         String[] tables = {"lab_tests_results l", "lab_tests_requests q"};
 
@@ -1036,7 +1114,6 @@ public class LaboratoryBean
 //            System.err.println("Error Message: " + ex.getMessage());
 //        }
 //    }
-
 //    public void laboratory_delete_clinical_note(Integer note_id) {
 //        try {
 //            if (ConsultantDAO.Consultant_Delete_Clinical_Note(note_id)) {
@@ -1048,7 +1125,6 @@ public class LaboratoryBean
 //            System.out.println("Error Message: " + ex.getMessage());
 //        }
 //    }
-
 //    public void laboratory_add_clinical_note(String user_id) {
 //        try {
 //            if (ConsultantDAO.Consultant_Dentist_Tasks(this.task_id, user_id, this.note)) {
@@ -1062,7 +1138,6 @@ public class LaboratoryBean
 //            System.err.println("Error Message: " + ex.getMessage());
 //        }
 //    }
-
     // </editor-fold> 
     // <editor-fold defaultstate="collapsed" desc="Administrator 'method' - Not currently used">    
     public void laboratory_add_test() {
@@ -1098,7 +1173,6 @@ public class LaboratoryBean
 //        }
 //        return null;
 //    }
-
     public void laboratory_test_start_time() {
         try {
             if (!test_started) {
@@ -1133,6 +1207,23 @@ public class LaboratoryBean
             return confirm_specific_tests;
         } catch (Exception ex) {
             System.err.println("Error Message: " + ex.getMessage());
+            return null;
+
+        }
+    }
+
+    public List<testresults> tableLaboratory_Get_Sub_Tests(Integer specific_id) {
+        try {
+
+            if (specific_id != null) {
+                return this.tablesubtest = LaboratoryDAO.tableLaboratory_Get_Sub_Tests(specific_id);
+
+            } else {
+                return null;
+            }
+        } catch (Exception ex) {
+            System.err.println("Error Message: " + ex.getMessage());
+
             return null;
         }
     }
@@ -1197,22 +1288,41 @@ public class LaboratoryBean
 
             String agetype;
             agetype = "";
-            if (patient_view.getAge_days() >= 0 && patient_view.getAge_days() <= 14 && patient_view.getAge_months() == 0 && patient_view.getAge() == 0) {
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+            String yy, mm, dd, date;
+            int patient_age, patient_age_month, patient_age_days;
+            date = format.format(patient_view.getDOB());
+            yy = date.substring(0, 4);
+            mm = date.substring(5, 7);
+            dd = date.substring(8, 10);
+            LocalDate l = LocalDate.of(Integer.parseInt(yy), Integer.parseInt(mm), Integer.parseInt(dd)); //specify year, month, date directly
+            LocalDate now = LocalDate.now(); //gets localDate
+            Period diff = Period.between(l, now); //difference between the dates is calculated
+
+            patient_age = diff.getYears();
+            patient_age_month = diff.getMonths();
+            patient_age_days = diff.getDays();
+            Integer age, month, days;
+            age = patient_age;
+            month = (age <= 0) ? patient_age_month : 0;
+            days = (age <= 0 && month <= 0) ? patient_age_days : 0;
+
+            if (days >= 0 && days <= 14 && month == 0 && age == 0) {
                 agetype = "Neonate F/M";
-            } else if (patient_view.getAge_days() > 14 || patient_view.getAge_months() > 0) {
+            } else if (days > 14 || month > 0) {
                 agetype = "Baby F/M";
-            } else if (patient_view.getAge() > 0) {
-                if (patient_view.getAge() <= 4) {
+            } else if (age > 0) {
+                if (age <= 4) {
                     agetype = "Toddler F/M";
-                } else if (patient_view.getAge() > 4 && patient_view.getAge() <= 14) {
+                } else if (age > 4 && age <= 14) {
                     agetype = "Child F/M";
-                } else if (patient_view.getAge() > 14 && patient_view.getAge() <= 59) {
+                } else if (age > 14 && age <= 59) {
                     if (patient_view.getMemberGender().equals("Male")) {
                         agetype = "Adult Male";
                     } else {
                         agetype = "Adult Female";
                     }
-                } else if (patient_view.getAge() > 59) {
+                } else if (age > 59) {
 
                     if (patient_view.getMemberGender().equals("Male")) {
                         agetype = "Elderly Male";
@@ -1284,8 +1394,12 @@ public class LaboratoryBean
 
     public String backButtonAfterResultSubmition(String task_id) {
         laboratory_unlock_task();
-
-        return "laboratory";
+        try {
+            this.patient_view = ReceptionDAO.Reception_Retrieve_Patient_Details(this.task_id);
+            this.reception_info_view = ReceptionDAO.Reception_Get_Reception_Info(this.task_id);
+        } catch (Exception e) {
+        }
+        return "/pages/lab/details.xhtml";
     }
 
     public void submitProvisionaltests(String task_id) {
@@ -1312,7 +1426,7 @@ public class LaboratoryBean
                 } else {
                     FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error occured: Please contact System administrator", "Failure"));
                 }
-              laboratory_unlock_task();
+                laboratory_unlock_task();
             } else {
                 FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Action Blocked. You Have " + tests_requested.size() + " Pending Requested Test(s). Thank You", "Failure"));
 
@@ -1360,14 +1474,75 @@ public class LaboratoryBean
         }
 
     }
-    
-    public void Value_reset(){
-   this.requested_test_result=null;
-   this.test_comment=null;
-   this.sub_test_id=null;
-   this.expected_result_id=null;
-   this.numerical_result=null;
-   this.expected_result_range=null;
+
+    public void Value_reset() {
+        this.sub_test_id = null;
+        this.expected_result_range = null;
     }
 
+    public String exitlab(String trackid, String user_id) {
+        try {
+            String[][] updatelabrequest = {{"Status", "Countersign_status"}, {"Completed", "Completed"}};
+            if (DynamicFunctionsDAO.Edit("lab_tests_requests", updatelabrequest, "Track_Id", trackid)) {
+                laboratory_get_pending_tasks(user_id);
+                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Client Exited", "Success"));
+            }
+
+            return "/pages/lab/incoming.xhtml";
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public String foward_to_consultation(String trackid, String user_id) {
+        try {
+            String[][] updatelabrequest = {{"Status", "Countersign_status"}, {"Completed", "Completed"}};
+            if (DynamicFunctionsDAO.Edit("lab_tests_requests", updatelabrequest, "Track_Id", trackid)) {
+                LaboratoryDAO.Laboratory_Consultant_Pending(this.task_id, user_id, false);
+                laboratory_get_pending_tasks(user_id);
+                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Client fowarded to consultation", "Success"));
+            }
+            return "/pages/lab/incoming.xhtml";
+        } catch (Exception e) {
+
+            return null;
+        }
+    }
+
+    public List<ExpectedResult> laboratory_get_expected_results(Integer sub_test_id) {
+
+        try {
+            if (sub_test_id != null) {
+//                expected_results = LaboratoryDAO.Laboratory_Get_Expected_Results(sub_test_id);
+                this.expected_result_range = "";
+                List returnedData[] = LaboratoryDAO.Laboratory_Get_Expected_Results(sub_test_id);
+                expected_results = returnedData[0];
+
+                expected_result_range(sub_test_id);
+                return expected_results;
+            } else {
+                return null;
+            }
+        } catch (Exception ex) {
+            System.out.println("Exception In Admin Bean: laboratory_get_expected_results: " + ex.getMessage());
+            return null;
+        }
+    }
+
+    public boolean result_entry(Integer sub_test_id, String type) {
+
+        try {
+            if (LaboratoryDAO.Laboratory_testresult(sub_test_id)) {
+                this.result_entry = true;
+                return (type.equals("result_entry")) ? true : false;
+            } else {
+                return (type.equals("result_select")) ? true : false;
+
+            }
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+   
 }

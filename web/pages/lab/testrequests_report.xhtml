@@ -1,0 +1,154 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="head">
+        <style type="text/css">
+            .ui-datatable .ui-datatable-footer {
+                text-align:left;
+            }
+            button.ui-button {
+                margin-right: .5rem;
+            }
+        </style>
+    </ui:define>
+
+    <ui:define name="title">Laboratory - Test Requests</ui:define>
+
+    <ui:define name="content">
+
+        <h:form id="frmSub" class="card" >  
+            <p:commandButton styleClass="ui-button-warning" action="#{laboratoryBean.back()}" value="back" update=":frmSub:notification"/>
+                       
+             <p:panel id="pnlresults" style="margin-bottom:5px;color: #40356E;background-color: #f7f7f7;">
+                <p:dataTable  id="expectedTbl" value="#{laboratoryBean.laboratory_get_performed_tests()}" 
+                              paginator="true" rows="5" size="small" paginatorPosition="bottom" var="pres"
+                              scrollable="true" 
+                              emptyMessage="No Results Have Been Added " >
+
+                    <f:facet name="header">  
+                        Test Results From Submitted Test Samples
+                        <p:commandButton value="View results on a sheet" type="button" icon="pi pi-external-link" onclick="PF('dlg3').show()"/>
+                    </f:facet>
+
+                    <p:column headerText="Result Id" >  
+                        #{pres.result_id}  
+                    </p:column>
+                    <p:column headerText="Sample Type" >  
+                        #{pres.sample_type}  
+                    </p:column>
+
+                    <p:column headerText="Test and its components" >  
+                        #{pres.general_test}
+                    </p:column>
+
+                    <p:column headerText="Results" >  
+                        #{pres.general_results}#{laboratoryBean.result_units(pres.sub_test_id,pres.other_result)} #{laboratoryBean.expected_result_range(pres.sub_test_id)} #{pres.comment}
+                    </p:column>
+                    <p:column headerText="Date" >  
+                        #{pres.resultdate}
+                    </p:column>
+                   
+                    <f:facet name="footer">  
+                        <p:commandButton styleClass="ui-button-warning" action="#{laboratoryBean.back()}" value="back" update=":frmSub:notification"/>
+                         </f:facet>
+
+                </p:dataTable>
+
+                <p:dialog  widgetVar="dlg3" height="500"  width="60%" showEffect="fade">
+                    <f:facet name="footer">
+                        <p:commandButton type="button" value="Cancle" onclick="PF('dlg3').hide()" style="width: 5rem; font-size: smaller" />
+                        <p:commandButton value="Print" type="button" icon="pi pi-print" style="width: 5rem; font-size: smaller">
+                            <p:printer target="main_panel"/>
+                        </p:commandButton>
+                    </f:facet>
+                    <p:panel id="main_panel" >
+                        <h:panelGrid width="100%" columns="1" style="text-align: center; font-family: sans-serif; font-size: 23px; font-weight: bolder">
+                            <p:outputLabel value="LABORATORY REPORT FORM" ></p:outputLabel>
+                        </h:panelGrid>
+                        <h:panelGrid columns="3" width="100%"  style="text-align: left; font-family: sans-serif; font-size: 13px; font-weight: normal">
+                            <h:panelGrid columns="2">
+                                <p:outputLabel style="font-weight: bold" value="Name:"></p:outputLabel>
+                                <p:outputLabel style="text-decoration: underline;text-decoration-style: dotted" value="#{laboratoryBean.patient_view.fullname}" ></p:outputLabel>
+                            </h:panelGrid>
+
+                            <h:panelGrid columns="2">
+                                <p:outputLabel style="font-weight: bold" value="OPD No:"></p:outputLabel>
+                                <p:outputLabel style="text-decoration: underline;text-decoration-style: dotted" value="" ></p:outputLabel>
+                            </h:panelGrid>
+
+
+                            <h:panelGrid columns="2">
+                                <p:outputLabel style="font-weight: bold" value="Age:"></p:outputLabel>
+                                <p:outputLabel style="text-decoration: underline;text-decoration-style: dotted" value="#{laboratoryBean.patient_view.age}" ></p:outputLabel>
+                            </h:panelGrid>
+                            <h:panelGrid columns="2">
+                                <p:outputLabel style="font-weight: bold" value="Gender:"></p:outputLabel>
+                                <p:outputLabel style="text-decoration: underline;text-decoration-style: dotted" value="#{laboratoryBean.patient_view.memberGender}" ></p:outputLabel>
+                            </h:panelGrid>
+                            <h:panelGrid columns="2">
+                                <p:outputLabel style="font-weight: bold" value="Address:"></p:outputLabel>
+                                <p:outputLabel style="text-decoration: underline;text-decoration-style: dotted" value="#{laboratoryBean.patient_view.subcounty},  #{laboratoryBean.patient_view.parish} , #{laboratoryBean.patient_view.village}" ></p:outputLabel>
+                            </h:panelGrid>
+                        </h:panelGrid>
+                        <h:panelGrid columns="2" width="100%" style="text-align: left; font-family: sans-serif; font-size: 13px; font-weight: normal">
+                            <h:panelGrid columns="2">
+                                <p:outputLabel style="font-weight: bold" value="Ward/Clinic:"></p:outputLabel>
+                                <p:outputLabel style="text-decoration: underline;text-decoration-style: dotted" value="OPD" ></p:outputLabel>
+                            </h:panelGrid>
+                            <h:panelGrid columns="1">
+                                <p:outputLabel style="font-weight: bold" value="Clinician:.................................................................................................................."></p:outputLabel>
+                            </h:panelGrid>
+
+                        </h:panelGrid>
+
+                        <br/>
+
+                        <h:panelGrid columns="1"   style="text-align: left; font-family: sans-serif; font-size: smaller; font-wpeight: normal; width: 100%;">
+
+                            <p:dataTable var="resultdata"   value="#{laboratoryBean.laboratory_get_performed_tests()}">
+                                <p:column headerText="Sample details:" styleClass="tblcol3">  
+                                    #{resultdata.sample_type}
+                                </p:column>
+                                <p:column headerText="Test and its components:" styleClass="tblcol3">  
+                                    #{resultdata.general_test}  
+                                </p:column>
+                                <p:column headerText="Results:" styleClass="tblcol4">  
+                                    #{resultdata.general_results}  #{laboratoryBean.result_units(resultdata.sub_test_id,resultdata.other_result)} 
+                                </p:column>
+                                <p:column headerText="Comments" styleClass="tblcol4">  
+                                    #{resultdata.comment}  
+                                </p:column>
+
+                                <p:column headerText="Reference ranges:" styleClass="tblcol3">  
+                                    #{laboratoryBean.expected_result_range(resultdata.sub_test_id)}
+                                </p:column>
+                            </p:dataTable>
+                        </h:panelGrid>
+                        <h:panelGrid columns="2" width="100%" style="text-align: left; font-family: sans-serif; font-size: 13px; font-weight: normal">
+                            <p:outputLabel style="font-weight: normal" value="Analyst signature:......................................................................................"></p:outputLabel>
+                            <p:outputLabel style="font-weight: normal" value="Date:.................................."></p:outputLabel>
+                            <p:outputLabel style="font-weight: normal" value="Result approved by:......................................................................................."></p:outputLabel>
+                            <p:outputLabel style="font-weight: normal" value="Date:....................................."></p:outputLabel>
+
+                        </h:panelGrid>
+                        <h:panelGrid columns="2" style="float: top; text-align: left; font-family: sans-serif; font-size: smaller; font-weight: normal;width: 100%;">
+                            <p:outputLabel style="font-weight: normal" value="Note: *indicates test can only be requested by a Medical officer"/>
+                            <p:outputLabel style="font-style: italic; " value="This form Must be completely filled by the requested clinician"/>
+
+                        </h:panelGrid>
+
+                    </p:panel>
+
+                </p:dialog>
+            </p:panel>
+
+            <p:growl id="notification" sticky="true"/>
+
+
+        </h:form>
+    </ui:define>
+</ui:composition>

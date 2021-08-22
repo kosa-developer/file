@@ -791,7 +791,12 @@ public class reception implements Serializable {
             if (DynamicFunctionsDAO.Check_if_exsists(memberID, "frontdesk_tasks", "Patient_Id")) {
 
                 if (LaboratoryDAO.Laboratory_Add_Test_Request(this.test_name_id, this.trans_id.toString(), user_id, "OPD", generated_task_id.toString(), this.price)) {
-                    FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Test Request Added Succesfully", "Successful"));
+                    if (ReceptionDAO.Reception_Accounts_Pending(this.trans_id.toString(), this.skip_accounts, false, user_id,"Lab test-> "+DynamicFunctionsDAO.dynamicgetsingle_variable("test_name", "test_names", "test_id", this.test_name_id.toString()),this.price)) {
+                           
+                    } else {
+                        
+                    } FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Test Request Added Succesfully", "Successful"));
+                   
                 } else {
                     FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Transaction Error.Please Contact Your Administrator", "Failure"));
                 }
@@ -804,7 +809,11 @@ public class reception implements Serializable {
                         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, "Missing Compulsory Information", "Failure"));
                     } else {
                         if (LaboratoryDAO.Laboratory_Add_Test_Request(this.test_name_id, this.trans_id.toString(), user_id, "OPD", generated_task_id.toString(), this.price)) {
-                            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Test Request Added Succesfully", "Successful"));
+                            if (ReceptionDAO.Reception_Accounts_Pending(this.trans_id.toString(), this.skip_accounts, false, user_id,"Lab test-> "+DynamicFunctionsDAO.dynamicgetsingle_variable("test_name", "test_names", "test_id", this.test_name_id.toString()),this.price)) {
+                           
+                    } else {
+                        
+                    } FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Test Request Added Succesfully", "Successful"));
                         } else {
                             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Transaction Error.Please Contact Your Administrator", "Failure"));
                         }
@@ -817,9 +826,7 @@ public class reception implements Serializable {
                 }
             }
 
-            this.test_category_id = null;
-            this.test_name_id = null;
-            this.price = null;
+          
         } catch (Exception ex) {
             System.err.println("Error Message: " + ex.getMessage());
         }
