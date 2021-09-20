@@ -1,0 +1,72 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
+
+    <ui:define name="head">
+        <style type="text/css">
+            button.ui-button {
+                margin-right: .5rem;
+            }
+        </style>
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="p-grid card">
+            <div class="p-col-12 p-md-8 card">
+                <h:form id="depttable" >
+
+                    <p:dataTable id="departmentTable" value="#{adminBean.view_department()}"  widgetVar="deptData"
+                                 rows="8" paginator="true" scrollable="true"
+                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 currentPageReportTemplate="{startRecord}-{endRecord} of {totalRecords} records"
+                                 rowsPerPageTemplate="5,10,100,200,500,1000,{ShowAll|'All'}"
+                                 showGridlines="true" var="department" selectionMode="single"
+                                 selection="#{adminBean.selectedDepartment}" rowKey="#{department.did}" size="small" >
+
+                        <p:ajax event="rowSelect" process="@this" update="editdepart" />
+
+                        <f:facet name="header">
+                            <div class="p-d-flex p-ai-center p-jc-between">
+                                <span>List of Departments</span>
+                            </div>
+                        </f:facet>
+
+                        <p:column headerText="Department Name" sortBy="#{department.departmentName}" filterBy="#{department.departmentName}" styleClass="tblcol8">  
+                            #{department.departmentName} 
+                        </p:column>
+
+                        <p:column headerText="Description" styleClass="tblcol11">  
+                            #{department.description} 
+                        </p:column>
+
+                    </p:dataTable>
+
+                </h:form>
+
+            </div>
+            <div class="p-col-12 p-md-4 card">
+                <h:form id="editdepart">
+                    <div class="ui-fluid p-formgrid p-grid p-col-12 p-md-12" >
+                        <div class="p-field ">
+                            <h:outputLabel value="Current Department Name:" />
+                            <p:inputText value="#{adminBean.selectedDepartment.departmentName}"  disabled="true"/>
+
+                        </div>
+                        <div class="p-field ">
+                            <h:outputLabel value="Current Department Name:" />
+                            <p:inputText value="#{adminBean.new_department}" required="true"/>
+
+                        </div>
+                        <div class="p-field ">
+                            <h:outputLabel value="Description:" />
+                            <p:inputTextarea value="#{adminBean.new_department_desc}" required="true" />
+
+                        </div>
+                    </div>
+
+                    <p:commandButton value="Apply Changes" update=":depttable:departmentTable,editdepart" action="#{adminBean.admin_update_department()}" style="font-size: 12px;" />
+                     <p:messages/>
+                </h:form>
+            </div>
+        </div>
+    </ui:define>
+</ui:composition>

@@ -1,0 +1,187 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+    <ui:define name="head">     
+        <style type="text/css">
+            button.ui-button {
+                margin-right: .5rem;
+            }
+        </style>
+    </ui:define>
+    <ui:define name="title">Laboratory - View Details</ui:define>
+
+    <ui:define name="content">
+        <h:form>  
+            <div class="p-grid">
+
+                <div class="p-col-12 p-md-4 p-sm-12 card">
+                    <h:outputLabel value="Patient ID: " styleClass="headercolumn" />                  
+                    <h:outputText value="#{laboratoryBean.patient_view.memberId}" styleClass="datacolumn"/>
+                    <p:outputPanel id="photo">
+                        <p:graphicImage name="demo/images/photocam/#{laboratoryBean.patient_view.memberId}.jpeg" alt="#{laboratoryBean.patient_view.memberId}"/>
+                    </p:outputPanel>
+
+                </div>
+                <div class="p-grid p-col-12 p-md-8 p-sm-12 card">
+                    <div class="p-col-12 p-md-4 p-sm-12">
+                        <div class="p-formgroup-inline">
+                            <div class="p-field">
+                                <h:outputLabel value="Patient Name: "   style="font-weight: bold"/>
+                                <h:outputLabel value="#{laboratoryBean.patient_view.fullname}" styleClass="datacolumn" />
+
+                            </div>
+                        </div>
+                        <div class="p-formgroup-inline">
+                            <div class="p-field">
+                                <h:outputLabel value="Gender: "   style="font-weight: bold"/>
+                                <h:outputLabel value="#{laboratoryBean.patient_view.memberGender}" styleClass="datacolumn" />
+
+                            </div>
+                        </div>
+                        <div class="p-formgroup-inline">
+                            <div class="p-field">
+                                <h:outputLabel value="Age: "   style="font-weight: bold"/>
+                                <h:outputLabel value="#{laboratoryBean.patient_view.age}" styleClass="datacolumn" />
+
+                            </div>
+                        </div>
+                        <div class="p-formgroup-inline">
+                            <div class="p-field">
+                                <h:outputLabel value="District: "   style="font-weight: bold"/>
+                                <h:outputLabel value="#{laboratoryBean.patient_view.parish}" styleClass="datacolumn" />
+
+                            </div>
+                        </div>
+                        <div class="p-formgroup-inline">
+                            <div class="p-field">
+                                <h:outputLabel value="Subcounty: "   style="font-weight: bold"/>
+                                <h:outputLabel value="#{laboratoryBean.patient_view.subcounty}" styleClass="datacolumn" />
+
+                            </div>
+                        </div>
+                        <div class="p-formgroup-inline">
+                            <div class="p-field">
+                                <h:outputLabel value="Village: "   style="font-weight: bold"/>
+                                <h:outputLabel value="#{laboratoryBean.patient_view.village}" styleClass="datacolumn" />
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-grid p-col-12 p-md-8 p-sm-12">
+                        <div class=" p-col-12 p-md-6  p-sm-12">
+                            <div class="p-formgroup-inline">
+                                <div class="p-field">
+                                    <h:outputLabel value="Referral Status: "   style="font-weight: bold"/>
+                                    <h:outputLabel value="#{laboratoryBean.reception_info_view.referral_status}" styleClass="datacolumn" />
+
+                                </div>
+                            </div>
+                            <div class="p-formgroup-inline">
+                                <div class="p-field">
+                                    <h:outputLabel value="Referral From: "   style="font-weight: bold"/>
+                                    <h:outputLabel value="#{laboratoryBean.reception_info_view.referred_from}" styleClass="datacolumn" />
+
+                                </div>
+                            </div>
+                            <div class="p-formgroup-inline">
+                                <div class="p-field">
+                                    <h:outputLabel value="Weight: "   style="font-weight: bold"/>
+                                    <h:outputLabel value="#{laboratoryBean.reception_info_view.weight}" styleClass="datacolumn" />
+
+                                </div>
+                            </div>
+                            <div class="p-formgroup-inline">
+                                <div class="p-field">
+                                    <h:outputLabel value="Height(cm): "   style="font-weight: bold"/>
+                                    <h:outputLabel value="#{laboratoryBean.reception_info_view.height}" styleClass="datacolumn" />
+
+                                </div>
+                            </div>
+                            <div class="p-formgroup-inline">
+                                <div class="p-field">
+                                    <h:outputLabel value="Temperature: "   style="font-weight: bold"/>
+                                    <h:outputLabel value="#{laboratoryBean.reception_info_view.temperature}" styleClass="datacolumn" />
+
+                                </div>
+                            </div>
+                            <div class="p-formgroup-inline">
+                                <div class="p-field">
+                                    <h:outputLabel value="Oxygen Saturation:  "   style="font-weight: bold"/>
+                                    <h:outputLabel value="#{laboratoryBean.reception_info_view.oxy_saturation}" styleClass="datacolumn" />
+
+                                </div>
+                            </div>
+                            <div class="p-formgroup-inline">
+                                <div class="p-field">
+                                    <h:outputLabel value="Heart Pulse:  "   style="font-weight: bold"/>
+                                    <h:outputLabel value="#{laboratoryBean.reception_info_view.heart_pulse}" styleClass="datacolumn" />
+
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class=" p-col-12 p-md-6  p-sm-12">
+                            <div class="p-formgroup-inline">
+                                <div class="p-field">
+                                    <h:outputLabel value="Blood Pressure:  "   style="font-weight: bold"/>
+                                    <h:outputLabel value="#{laboratoryBean.reception_info_view.blood_pressure}" styleClass="datacolumn" />
+
+                                </div>
+                            </div>
+                            <div class="p-formgroup-inline">
+                                <div class="p-field">
+                                    <h:outputLabel value="Respiratory Rate:  "   style="font-weight: bold"/>
+                                    <h:outputLabel value="#{laboratoryBean.reception_info_view.respiratory_rate}" styleClass="datacolumn" />
+
+                                </div>
+                            </div>
+                            <div class="p-formgroup-inline">
+                                <div class="p-field">
+                                    <h:outputLabel value="Family Planning: "   style="font-weight: bold"/>
+                                    <h:outputLabel value="#{laboratoryBean.reception_info_view.family_planning}" styleClass="datacolumn" />
+
+                                </div>
+                            </div>
+                            <div class="p-formgroup-inline">
+                                <div class="p-field">
+                                    <h:outputLabel value="ITN in Use:  "   style="font-weight: bold"/>
+                                    <h:outputLabel value="#{laboratoryBean.reception_info_view.itn_in_use}" styleClass="datacolumn" />
+
+                                </div>
+                            </div>
+                            <div class="p-formgroup-inline">
+                                <div class="p-field">
+                                    <h:outputLabel value="Visit Reason:  "   style="font-weight: bold"/>
+                                    <h:outputLabel value="#{laboratoryBean.reception_info_view.problem}" styleClass="datacolumn" />
+
+                                </div>
+                            </div>
+                            <div class="p-formgroup-inline">
+                                <div class="p-field">
+                                    <h:outputLabel value="Triage Category: "   style="font-weight: bold"/>
+                                    <h:outputLabel value="#{laboratoryBean.reception_info_view.triage_category}" styleClass="datacolumn" />
+
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+
+
+
+                </div>
+
+            </div>
+            <p:panel id="pnlaction" style="margin-bottom:5px;">
+                <p:commandButton value="Carry Out The Requested Laboratory Tests" action="#{laboratoryBean.laboratory_navigate_to()}"/>
+                <p:commandButton value="Cancel" action="#{laboratoryBean.laboratory_unlock_task()}"/>
+            </p:panel>
+            <p:growl id="notification" sticky="true"/>
+        </h:form>  
+    </ui:define>
+
+</ui:composition>
